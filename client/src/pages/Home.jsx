@@ -4,13 +4,14 @@ import L from "leaflet";
 L.Icon.Default.imagePath =
   "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/";
 
-export const Home = () => {
+export const Home = (props) => {
+  const { currentPosition } = props;
   // 初期値の緯度経度
-  const position = [35.8, 139.6];
-  const markerPosition = [35.81, 139.6];
+  const position = [currentPosition.latitude, currentPosition.longitude];
+  const markerPosition = [currentPosition.latitude, currentPosition.longitude];
   const markerPosition2 = [35.8, 139.61];
   // 初期マップズームレベル
-  const zoom = 13;
+  const zoom = 30;
 
   return (
     <>
