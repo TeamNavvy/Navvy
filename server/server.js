@@ -90,13 +90,20 @@ app.patch("/api/myPage", async (req, res) => {
 
   if (myHome) {
     await knex("home")
-      .where({ user_id: userId })
-      .update({ latitude: myHome.latitude, longitude: myHome.longitude });
+      .insert({ user_id: userId, longitude: myHome[0], latitude: myHome[1] })
+      .onConflict("user_id")
+      .merge({
+        longitude: myHome[0],
+        latitude: myHome[1],
+      });
   }
 
-  await knex("users").where({ id: userId }).update(updateData);
+  if (Object.keys(updateData).length > 0) {
+    await knex("users").where({ id: userId }).update(updateData);
+  }
   res.json({ message: "更新完了" });
 });
+
 // ユーザー登録
 app.post("/api/register", async (req, res) => {
   const { userName, password, role = 0 } = req.body;
