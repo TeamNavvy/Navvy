@@ -12,7 +12,7 @@
     "db:seed": "knex seed:run",
     "db:seed-make": "knex seed:make",
     "db:reset": "knex migrate:rollback --all && knex migrate:latest && knex seed:run",
-    "build": "npm install && cd ../client && npm install && npm run build && rm -rf ../server/public && cp -r dist ../server/public && npm run db:migrate && npm run db:seed"
+    "build": "npm install && npm run db:migrate && npm run db:seed && cd ../client && npm install && npm run build && rm -rf ../server/public && cp -r dist ../server/public"
   },
   "repository": {
     "type": "git",
