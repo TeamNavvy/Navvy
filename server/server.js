@@ -69,6 +69,19 @@ app.post("/api/logout", (req, res) => {
   });
 });
 
+// 現在地をhistoryTBに格納;
+app.post("/api/home", async (req, res) => {
+  const { latitude, longitude, user } = req.body;
+  console.log("latitude:", latitude);
+  // const longitude = req.body.currentPosition.longitude;
+
+  const [location] = await knex("history")
+    .insert({ user_id: 3, latitude, longitude })
+    .returning("*");
+
+  res.json(location);
+});
+
 // マイページ変更機能
 app.patch("/api/myPage", async (req, res) => {
   const userId = req.session.user.id;
