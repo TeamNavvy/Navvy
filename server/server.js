@@ -71,13 +71,7 @@ app.post("/api/logout", (req, res) => {
 
 // ユーザー登録
 app.post("/api/register", async (req, res) => {
-  const { userName, password } = req.body;
-
-  if (!userName || !password) {
-    return res.status(400).json({
-      message: "ユーザー名 と password は必須です",
-    });
-  }
+  const { userName, password, role = 0 } = req.body;
 
   const salt = crypto.randomBytes(6).toString("hex");
   const saltAndPassword = `${salt}${password}`;
@@ -96,6 +90,7 @@ app.post("/api/register", async (req, res) => {
     name: userName,
     password: hashedPassword, //hash化
     salt: salt,
+    admin: role,
   });
 
   return res.status(200).json({

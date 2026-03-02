@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { RadioButtonGroup } from "../components/molecules/RadioButtonGroup";
 
 export const Register = () => {
-  const [form, setForm] = useState({ userName: "", password: "" });
+  const [form, setForm] = useState({ userName: "", password: "", role: "" });
   const nav = useNavigate();
+  const [selectedOption, setSelectedOption] = useState("");
+  const options = ["親", "子供"];
 
   const handleRegister = async () => {
     try {
@@ -27,6 +30,12 @@ export const Register = () => {
     }
   };
 
+  const handleOptionChange = (e) => {
+    setSelectedOption(e.target.value);
+    const roleValue = e.target.value === "親" ? 1 : 0;
+    setForm({ ...form, role: roleValue });
+  };
+
   return (
     <>
       <h3>新規登録</h3>
@@ -45,8 +54,17 @@ export const Register = () => {
           onChange={(e) => setForm({ ...form, password: e.target.value })}
         />
       </div>
+      <div>
+        <RadioButtonGroup
+          options={options}
+          selectedOption={selectedOption}
+          onChange={handleOptionChange}
+        />
+      </div>
       <button
-        disabled={form.userName === "" || form.password === ""}
+        disabled={
+          form.userName === "" || form.password === "" || form.role === ""
+        }
         onClick={handleRegister}
       >
         登録
