@@ -1,4 +1,5 @@
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { useNavigate } from "react-router-dom";
 import "leaflet/dist/leaflet.css";
 import "./map.css";
 import L from "leaflet";
@@ -15,6 +16,7 @@ export const Home = () => {
   const { user, setUser } = useUser();
   //現在地用
   const [currentPosition, setCurrentPosition] = useState();
+  let navigate = useNavigate();
   const positionRef = useRef(null);
 
   //現在地DB保存
@@ -34,7 +36,8 @@ export const Home = () => {
       }
   }
 
-  //現在地取得
+  //現在地取得  let navigate = useNavigate();
+
   const handleGetPosition = () => {
     navigator.geolocation.getCurrentPosition((position) => {
   
@@ -101,6 +104,7 @@ export const Home = () => {
   return (
     <>
       <h1>地図表記デモ</h1>
+      <button onClick={() => navigate("/myPage")}>マイページ</button>
       <MapContainer center={position} zoom={zoom}>
         <TileLayer
           attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

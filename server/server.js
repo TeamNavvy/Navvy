@@ -50,7 +50,7 @@ app.post("/api/login", async (req, res) => {
   }
 
   // ログイン成功
-  req.session.user = { name };
+  req.session.user = { id: user.id, name: name };
   return res.json({ message: "ログイン成功" });
 });
 
@@ -80,6 +80,78 @@ app.post("/api/home", async (req, res) => {
     .returning("*");
 
   res.json(location);
+});
+
+// マイページ変更機能
+app.patch("/api/myPage", async (req, res) => {
+  const userId = req.session.user.id;
+  const { name, image_url, password, myHome } = req.body;
+  // 更新情報がない場合を除きたいので、updateDataで絞りこみ
+  const updateData = {};
+
+  if (name) updateData.name = name;
+  if (image_url) updateData.image_url = image_url;
+  if (password) {
+    const salt = crypto.randomBytes(6).toString("hex");
+    const saltAndPassword = `${salt}${password}`;
+    const hash = crypto.createHash("sha256");
+    const hashedPassword = hash.update(saltAndPassword).digest("hex");
+
+    updateData.password = hashedPassword;
+    updateData.salt = salt;
+  }
+
+  if (myHome) {
+    await knex("home")
+      .insert({ user_id: userId, longitude: myHome[0], latitude: myHome[1] })
+      .onConflict("user_id")
+      .merge({
+        longitude: myHome[0],
+        latitude: myHome[1],
+      });
+  }
+
+  if (Object.keys(updateData).length > 0) {
+    await knex("users").where({ id: userId }).update(updateData);
+  }
+  res.json({ message: "更新完了" });
+});
+
+app.get("/api/mypage/:id", async (req, res) => {
+  const id = req.params.id;
+  const result = await knex("users")
+    .where({ id })
+    .select("name", "image_url", "status", "message", "admin");
+  res.send(result);
+});
+
+// ユーザー登録
+app.post("/api/register", async (req, res) => {
+  const { userName, password, role = 0 } = req.body;
+
+  const salt = crypto.randomBytes(6).toString("hex");
+  const saltAndPassword = `${salt}${password}`;
+  const hash = crypto.createHash("sha256");
+  const hashedPassword = hash.update(saltAndPassword).digest("hex");
+
+  const existingUser = await knex("users").where({ name: userName }).first();
+
+  if (existingUser) {
+    return res.status(409).json({
+      message: "そのユーザーはすでに使用されています",
+    });
+  }
+
+  await knex("users").insert({
+    name: userName,
+    password: hashedPassword, //hash化
+    salt: salt,
+    admin: role,
+  });
+
+  return res.status(200).json({
+    message: "ユーザー登録完了",
+  });
 });
 
 app.listen(PORT, () => {

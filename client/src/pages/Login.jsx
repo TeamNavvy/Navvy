@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useUser } from "../UserContext";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export const Login = () => {
   const { user, setUser } = useUser();
@@ -67,6 +67,7 @@ export const Login = () => {
           ログイン
         </button>
       </div>
+      <Link to="/register">新規登録</Link>
     </div>
   );
 };
