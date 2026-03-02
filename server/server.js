@@ -72,12 +72,12 @@ app.post("/api/logout", (req, res) => {
 // マイページ変更機能
 app.patch("/api/myPage", async (req, res) => {
   const userId = req.session.user.id;
-  const { name, icon, password, myHome } = req.body;
+  const { name, image_url, password, myHome } = req.body;
   // 更新情報がない場合を除きたいので、updateDataで絞りこみ
   const updateData = {};
 
   if (name) updateData.name = name;
-  if (icon) updateData.icon = icon;
+  if (image_url) updateData.image_url = image_url;
   if (password) {
     const salt = crypto.randomBytes(6).toString("hex");
     const saltAndPassword = `${salt}${password}`;
@@ -102,6 +102,14 @@ app.patch("/api/myPage", async (req, res) => {
     await knex("users").where({ id: userId }).update(updateData);
   }
   res.json({ message: "更新完了" });
+});
+
+app.get("/api/mypage/:id", async (req, res) => {
+  const id = req.params.id;
+  const result = await knex("users")
+    .where({ id })
+    .select("name", "image_url", "status", "message", "admin");
+  res.send(result);
 });
 
 // ユーザー登録

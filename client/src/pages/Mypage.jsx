@@ -1,15 +1,20 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { useUser } from "../UserContext";
 
 export const Mypage = () => {
   // セッションのユーザー情報の取得
-  // const { user, setUser } = useUser();
+  const { user, setUser } = useUser();
   const [newName, setNewName] = useState("");
   const [newIcon, setNewIcon] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [newMyHome, setNewMyHome] = useState("");
 
-  const handleSubmit = async () => {
+  const [myInfo, setMyInfo] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const API_KEY = import.meta.env.VITE_API_KEY;
+
+  const handleSubmit = async (imageUrl) => {
     try {
       let myHomePosition = null;
       if (newMyHome) {
@@ -20,9 +25,9 @@ export const Mypage = () => {
       }
       const payload = {
         name: newName,
-        icon: newIcon,
         password: newPassword,
         myHome: myHomePosition,
+        image_url: imageUrl,
       };
       console.log("payloadは", payload);
       if (Object.keys(payload).length > 0) {
@@ -36,9 +41,41 @@ export const Mypage = () => {
     }
   };
 
+  useEffect(() => {
+    fetch(`/api/mypage/${user.id}`)
+      .then((res) => res.json())
+      .then((data) => setMyInfo(data[0]));
+  }, []);
+
+  const handleUpload = async () => {
+    setLoading(true);
+    const formData = new FormData();
+    formData.append("image", newIcon);
+    try {
+      const response = await fetch(
+        `https://api.imgbb.com/1/upload?key=${API_KEY}`,
+        {
+          method: "POST",
+          body: formData,
+        },
+      );
+      const data = await response.json();
+      if (data.success) {
+        await handleSubmit(data.data.url);
+      } else {
+        alert("画像のアップロードに失敗しました");
+      }
+    } catch (error) {
+      alert("通信エラーが発生しました");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <>
       <h1>マイページ</h1>
+      {myInfo.image_url && <img src={myInfo.image_url} />}
 
       <div>
         ユーザー名の変更
@@ -46,7 +83,11 @@ export const Mypage = () => {
       </div>
       <div>
         アイコンの変更
-        <input value={newIcon} onChange={(e) => setNewIcon(e.target.value)} />
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => setNewIcon(e.target.files[0])}
+        />
       </div>
       <div>
         パスワードの変更
@@ -63,7 +104,7 @@ export const Mypage = () => {
           onChange={(e) => setNewMyHome(e.target.value)}
         />
       </div>
-      <button onClick={handleSubmit}>変更を保存</button>
+      <button onClick={handleUpload}>変更を保存</button>
     </>
   );
 };
