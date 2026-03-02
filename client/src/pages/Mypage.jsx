@@ -16,16 +16,25 @@ export const Mypage = () => {
 
   const handleSubmit = async (imageUrl) => {
     try {
+      let myHomePosition = null;
+      if (newMyHome) {
+        const response = await axios.get(
+          `https://msearch.gsi.go.jp/address-search/AddressSearch?q=${newMyHome}`,
+        );
+        myHomePosition = response.data[0].geometry.coordinates;
+      }
       const payload = {
         name: newName,
         password: newPassword,
-        myHome: newMyHome,
+        myHome: myHomePosition,
         image_url: imageUrl,
       };
       console.log("payloadは", payload);
-      const response = await axios.patch("/api/myPage", payload);
-      console.log(response.data.message);
-      alert(response.data.message);
+      if (Object.keys(payload).length > 0) {
+        const response = await axios.patch("/api/myPage", payload);
+        console.log(response.data.message);
+        alert(response.data.message);
+      }
     } catch (error) {
       console.error("エラー内容", error);
       alert("更新に失敗");
