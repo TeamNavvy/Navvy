@@ -1,10 +1,10 @@
 import { Routes, Route } from "react-router-dom";
-import { UserProvider } from "../UserContext";
-import { Login } from "../pages/Login";
-import { Home } from "../pages/Home";
-import { ProtectedRoute } from "../ProtectedRoute";
-import { Mypage } from "../pages/Mypage";
-import { Register } from "../pages/Register";
+import { UserProvider } from "../components//UserContext";
+import { Login } from "../components/pages/Login";
+import { Home } from "../components//pages/Home";
+import { ProtectedRoute } from "..//components/ProtectedRoute";
+import { Mypage } from "../components//pages/Mypage";
+import { Register } from "../components//pages/Register";
 
 export const Router = () => {
   return (

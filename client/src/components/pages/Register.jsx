@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { RadioButtonGroup } from "../components/molecules/RadioButtonGroup";
+import { RadioButtonGroup } from "../molecules/RadioButtonGroup";
 
 export const Register = () => {
   const [form, setForm] = useState({ userName: "", password: "", role: "" });
