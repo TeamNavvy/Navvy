@@ -1,4 +1,5 @@
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { useNavigate } from "react-router-dom";
 import "leaflet/dist/leaflet.css";
 import "./map.css";
 import L from "leaflet";
@@ -9,6 +10,7 @@ L.Icon.Default.imagePath =
 export const Home = () => {
   // const { currentPosition } = props;
   const [currentPosition, setCurrentPosition] = useState();
+  let navigate = useNavigate();
 
   const handleGetPosition = () => {
     navigator.geolocation.getCurrentPosition((position) => {
@@ -39,6 +41,7 @@ export const Home = () => {
   return (
     <>
       <h1>地図表記デモ</h1>
+      <button onClick={() => navigate("/myPage")}>マイページ</button>
       <MapContainer center={position} zoom={zoom}>
         <TileLayer
           attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
