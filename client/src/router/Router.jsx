@@ -3,6 +3,7 @@ import { UserProvider } from "../UserContext";
 import { Login } from "../pages/Login";
 import { Home } from "../pages/Home";
 import { ProtectedRoute } from "../ProtectedRoute";
+import { Mypage } from "../pages/Mypage";
 
 export const Router = () => {
   return (
@@ -14,6 +15,14 @@ export const Router = () => {
           element={
             <ProtectedRoute>
               <Home />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/myPage"
+          element={
+            <ProtectedRoute>
+              <Mypage />
             </ProtectedRoute>
           }
         />

@@ -69,6 +69,35 @@ app.post("/api/logout", (req, res) => {
   });
 });
 
+// マイページ変更機能
+app.patch("/api/myPage", async (req, res) => {
+  const userId = req.session.user.id;
+  const { name, icon, password, myHome } = req.body;
+  // 更新情報がない場合を除きたいので、updateDataで絞りこみ
+  const updateData = {};
+
+  if (name) updateData.name = name;
+  if (icon) updateData.icon = icon;
+  if (password) {
+    const salt = crypto.randomBytes(6).toString("hex");
+    const saltAndPassword = `${salt}${password}`;
+    const hash = crypto.createHash("sha256");
+    const hashedPassword = hash.update(saltAndPassword).digest("hex");
+
+    updateData.password = hashedPassword;
+    updateData.salt = salt;
+  }
+
+  if (myHome) {
+    await knex("home")
+      .where({ user_id: userId })
+      .update({ latitude: myHome.latitude, longitude: myHome.longitude });
+  }
+
+  await knex("users").where({ id: userId }).update(updateData);
+  res.json({ message: "更新完了" });
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
