@@ -50,7 +50,7 @@ app.post("/api/login", async (req, res) => {
   }
 
   // ログイン成功
-  req.session.user = { name }; //idも
+  req.session.user = { id: user.id, name: name };
   return res.json({ message: "ログイン成功" });
 });
 
