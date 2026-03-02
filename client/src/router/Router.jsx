@@ -3,12 +3,14 @@ import { UserProvider } from "../UserContext";
 import { Login } from "../pages/Login";
 import { Home } from "../pages/Home";
 import { ProtectedRoute } from "../ProtectedRoute";
+import { Register } from "../pages/Register";
 
 export const Router = () => {
   return (
     <UserProvider>
       <Routes>
         <Route path="/" element={<Login />} />
+        <Route path="/register" element={<Register />} />
         <Route
           path="/home"
           element={

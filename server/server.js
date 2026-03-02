@@ -50,7 +50,7 @@ app.post("/api/login", async (req, res) => {
   }
 
   // ログイン成功
-  req.session.user = { name };
+  req.session.user = { name }; //idも
   return res.json({ message: "ログイン成功" });
 });
 
@@ -66,6 +66,40 @@ app.get("/api/me", (req, res) => {
 app.post("/api/logout", (req, res) => {
   req.session.destroy(() => {
     res.json({ message: "ログアウトしました" });
+  });
+});
+
+// ユーザー登録
+app.post("/api/register", async (req, res) => {
+  const { userName, password } = req.body;
+
+  if (!userName || !password) {
+    return res.status(400).json({
+      message: "ユーザー名 と password は必須です",
+    });
+  }
+
+  const salt = crypto.randomBytes(6).toString("hex");
+  const saltAndPassword = `${salt}${password}`;
+  const hash = crypto.createHash("sha256");
+  const hashedPassword = hash.update(saltAndPassword).digest("hex");
+
+  const existingUser = await knex("users").where({ name: userName }).first();
+
+  if (existingUser) {
+    return res.status(409).json({
+      message: "そのユーザーはすでに使用されています",
+    });
+  }
+
+  await knex("users").insert({
+    name: userName,
+    password: hashedPassword, //hash化
+    salt: salt,
+  });
+
+  return res.status(200).json({
+    message: "ユーザー登録完了",
   });
 });
 
