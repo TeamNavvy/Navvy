@@ -174,7 +174,7 @@ app.get("/api/status/:userId", async (req, res) => {
 });
 
 // status updateメソッド（データが無い1回目はinsertする）
-app.post("api/status", async (req, res) => {
+app.post("/api/status", async (req, res) => {
   const { userId, emotion, comment } = req.body;
   try {
     const exist = await knex("user_status").where({ user_id: userId }).first();
@@ -182,9 +182,14 @@ app.post("api/status", async (req, res) => {
     if (exist) {
       await knex("user_status")
         .where({ user_id: userId })
-        .update({ emotion, comment, update_at: knex.fn.now() });
+        .update({ emotion, comment, updated_at: knex.fn.now() });
     } else {
-      await knex("user_status").insert({ user_id: userId, emotion, comment });
+      await knex("user_status").insert({
+        user_id: userId,
+        emotion,
+        comment,
+        updated_at: knex.fn.now(),
+      });
     }
 
     res.json({ message: "保存しました" });

@@ -158,23 +158,23 @@ export const Home = () => {
               <div style={{ width: "200px" }}>
                 <div>
                   <strong>feeling</strong>
-                  <div
-                    style={{ display: "flex", gap: "8px", marginTop: "5px" }}
+                  <select
+                    value={emotion}
+                    onChange={(e) => setEmotion(e.target.value)}
+                    style={{
+                      width: "100%",
+                      marginTop: "5px",
+                      padding: "5px",
+                      fontSize: "18px",
+                    }}
                   >
-                    {["😃", "🙂", "😐", "😢", "😡", "👹"].map((e) => (
-                      <button
-                        key={e}
-                        onClick={() => setEmotion(e)}
-                        style={{
-                          fontSize: "20px",
-                          background: emotion === e ? "#ddd" : "white",
-                          borderRadius: "5px",
-                        }}
-                      >
-                        {e}
-                      </button>
-                    ))}
-                  </div>
+                    <option value="😃">😃</option>
+                    <option value="🙂">🙂</option>
+                    <option value="😐">😐</option>
+                    <option value="😢">😢</option>
+                    <option value="😡">😡</option>
+                    <option value="👹">👹</option>
+                  </select>
                 </div>
 
                 <div style={{ marginTop: "10px" }}>
