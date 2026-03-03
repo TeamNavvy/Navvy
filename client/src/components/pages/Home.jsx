@@ -107,9 +107,6 @@ export const Home = () => {
             A pretty CSS3 popup. <br /> Easily customizable.
           </Popup>
         </Marker>
-        <Marker position={markerPosition2}>
-          <Popup>2つ目だよーーー</Popup>
-        </Marker>
       </MapContainer>
     </>
   );
