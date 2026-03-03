@@ -2,9 +2,12 @@ import { useState, useEffect } from "react";
 import { useUser } from "../UserContext";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
+import { PrimaryButton } from "../atoms/PrimaryButton";
+import { PrimaryInput } from "../atoms/PrimaryInput";
+import { Flex, VStack, Heading, Link as ChakraLink } from "@chakra-ui/react";
 
 export const Login = () => {
-  const { user, setUser } = useUser();
+  const { setUser } = useUser();
   const [form, setForm] = useState({ userName: "", password: "" });
   const [loading, setLoading] = useState(false);
   const nav = useNavigate();
@@ -48,26 +51,43 @@ export const Login = () => {
   };
 
   return (
-    <div>
-      <h1>Navvy</h1>
-      <div>
-        <input
-          placeholder="ユーザー名"
-          onChange={(e) => setForm({ ...form, userName: e.target.value })}
-        />
-        <input
-          placeholder="password"
-          type="password"
-          onChange={(e) => setForm({ ...form, password: e.target.value })}
-        />
-        <button
+    <Flex minH="100vh" align="center" justify="center">
+      <VStack
+        spacing={6}
+        w="sm"
+        p={8}
+        bg="white"
+        borderRadius="xl"
+        boxShadow="md"
+      >
+        <Heading size="lg">Navvy</Heading>
+
+        <VStack spacing={3}>
+          <PrimaryInput
+            placeholder="ユーザー名"
+            onChange={(e) => setForm({ ...form, userName: e.target.value })}
+          />
+          <PrimaryInput
+            placeholder="password"
+            type="password"
+            onChange={(e) => setForm({ ...form, password: e.target.value })}
+          />
+        </VStack>
+
+        <PrimaryButton
+          w="full"
           disabled={form.userName === "" || form.password === ""}
           onClick={login}
         >
           ログイン
-        </button>
-      </div>
-      <Link to="/register">新規登録</Link>
-    </div>
+        </PrimaryButton>
+
+        <Link to="/register">
+          <ChakraLink as="span" color="blue.500" fontSize="sm">
+            新規登録
+          </ChakraLink>
+        </Link>
+      </VStack>
+    </Flex>
   );
 };
