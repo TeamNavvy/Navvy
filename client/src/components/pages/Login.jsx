@@ -79,7 +79,7 @@ export const Login = () => {
           disabled={form.userName === "" || form.password === ""}
           onClick={login}
         >
-          ログイン
+          {loading ? "ログイン中" : "ログイン"}
         </PrimaryButton>
 
         <Link to="/register">
