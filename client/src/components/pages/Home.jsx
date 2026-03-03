@@ -1,4 +1,11 @@
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  useMap,
+  Tooltip,
+} from "react-leaflet";
 import { useNavigate } from "react-router-dom";
 import "leaflet/dist/leaflet.css";
 import "../../map.css";
@@ -200,54 +207,24 @@ export const Home = () => {
     }
   };
 
-  const pinWithEmojiAndComment = L.divIcon({
+  const pinWithEmoji = L.divIcon({
     html: `
     <div style="
       display: flex;
-      flex-direction: column;
       align-items: center;
     ">
-      <!-- 吹き出し（コメント） -->
-      <div style="
-        background: white;
-        padding: 6px 10px;
-        border-radius: 8px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.25);
-        max-width: 160px;
-        font-size: 14px;
-        position: relative;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      ">
-        ${comment || ""}
-      </div>
-
-      <!-- 三角（吹き出しのしっぽ） -->
-      <div style="
-        width: 0;
-        height: 0;
-        border-left: 8px solid transparent;
-        border-right: 8px solid transparent;
-        border-top: 8px solid white;   
-        margin-top: -2px;              
-      "></div>
-
-      <!-- ピン + 絵文字（横並び） -->
-      <div style="display: flex; align-items: center; margin-top: 4px;">
-        <img 
-          src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png"
-          style="width: 25px; height: 41px;"
-        />
-        <span style="font-size: 22px; margin-left: 4px;">
-          ${status}
-        </span>
-      </div>
+      <img
+        src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png"
+        style="width: 25px; height: 41px;"
+      />
+      <span style="font-size: 22px; margin-left: 4px;">
+        ${status}
+      </span>
     </div>
   `,
     className: "",
-    iconSize: [160, 100],
-    iconAnchor: [20, 100],
+    iconSize: null,
+    iconAnchor: [12, 41], // ← ピンの先端を markerPosition に完全固定25×41のため
   });
 
   return (
@@ -261,7 +238,7 @@ export const Home = () => {
         />
         <Marker
           position={markerPosition}
-          icon={pinWithEmojiAndComment}
+          icon={pinWithEmoji}
           eventHandlers={{
             click: () => {
               setLoading(true);
@@ -269,6 +246,9 @@ export const Home = () => {
             },
           }}
         >
+          <Tooltip permanent direction="top" offset={[0, -45]}>
+            {comment}
+          </Tooltip>
           <Popup>
             {loading ? (
               <div>読み込み中...</div>
