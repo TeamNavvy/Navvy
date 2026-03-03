@@ -9,6 +9,7 @@ import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 //グローバルステート用
 import { useUser } from "../UserContext";
+import { HeaderLayout } from "../templates/HeaderLayout";
 
 // Popup 内専用コンポーネント（useMap が使えるようにする）
 const PopupContent = ({
@@ -201,88 +202,81 @@ export const Home = () => {
 
   const pinWithEmojiAndComment = L.divIcon({
     html: `
-    <div style="
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    ">
-      <!-- 吹き出し（コメント） -->
+    <div style="position: relative; width: 200px;">
+      
+      <!-- 吹き出し + 絵文字（ピンの上に浮かせる） -->
       <div style="
-        background: white;
-        padding: 6px 10px;
-        border-radius: 8px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.25);
-        max-width: 160px;
-        font-size: 14px;
-        position: relative;
+        position: absolute;
+        bottom: 41px;
+        left: 0px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
         white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
       ">
-        ${comment || ""}
+        <div style="
+          background: white;
+          padding: 4px 8px;
+          border-radius: 8px;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+          font-size: 14px;
+        ">${comment || ""}</div>
+        <span style="font-size: 22px;">${emotion}</span>
       </div>
 
-      <!-- 三角（吹き出しのしっぽ） -->
-      <div style="
-        width: 0;
-        height: 0;
-        border-left: 8px solid transparent;
-        border-right: 8px solid transparent;
-        border-top: 8px solid white;   
-        margin-top: -2px;              
-      "></div>
-
-      <!-- ピン + 絵文字（横並び） -->
-      <div style="display: flex; align-items: center; margin-top: 4px;">
-        <img 
-          src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png"
-          style="width: 25px; height: 41px;"
-        />
-        <span style="font-size: 22px; margin-left: 4px;">
-          ${emotion}
-        </span>
-      </div>
+      <!-- ピン画像（アンカー基準） -->
+      <img 
+        src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png"
+        style="width: 25px; height: 41px; display: block;"
+      />
     </div>
   `,
     className: "",
-    iconSize: [160, 100],
-    iconAnchor: [20, 100],
+    iconSize: [200, 41], // 高さ = ピン画像の高さだけ
+    iconAnchor: [12, 41], // ピン画像の中心・底辺
+    popupAnchor: [0, -41],
   });
 
+  const markerPosition2 = [35.65858, 139.74543];
+
   return (
-    <>
-      <h1>地図表記デモ</h1>
-      <button onClick={() => navigate("/myPage")}>マイページ</button>
-      <MapContainer center={position} zoom={zoom}>
-        <TileLayer
-          attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        <Marker
-          position={markerPosition}
-          icon={pinWithEmojiAndComment}
-          eventHandlers={{
-            click: () => {
-              setLoading(true);
-              fetchStatus();
-            },
-          }}
-        >
-          <Popup>
-            {loading ? (
-              <div>読み込み中...</div>
-            ) : (
-              <PopupContent
-                emotion={emotion}
-                setEmotion={setEmotion}
-                comment={comment}
-                setComment={setComment}
-                saveStatus={saveStatus}
-              />
-            )}
-          </Popup>
-        </Marker>
-      </MapContainer>
-    </>
+    <HeaderLayout>
+      <>
+        <h1>地図表記デモ</h1>
+        <MapContainer center={position} zoom={zoom}>
+          <TileLayer
+            attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+          <Marker
+            position={markerPosition}
+            icon={pinWithEmojiAndComment}
+            eventHandlers={{
+              click: () => {
+                setLoading(true);
+                fetchStatus();
+              },
+            }}
+          >
+            <Popup>
+              {loading ? (
+                <div>読み込み中...</div>
+              ) : (
+                <PopupContent
+                  emotion={emotion}
+                  setEmotion={setEmotion}
+                  comment={comment}
+                  setComment={setComment}
+                  saveStatus={saveStatus}
+                />
+              )}
+            </Popup>
+          </Marker>
+          <Marker position={markerPosition2}>
+            <Popup>2つ目だよーーー</Popup>
+          </Marker>
+        </MapContainer>
+      </>
+    </HeaderLayout>
   );
 };

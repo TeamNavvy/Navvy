@@ -4,7 +4,7 @@ export const PrimaryButton = (props) => {
   const { children, disabled = false, loading = false, onClick } = props;
   return (
     <Button
-      bg="orange.400"
+      bg="gray"
       color="white"
       _hover={{ opacity: 0.8 }}
       isdisabled={disabled || loading}

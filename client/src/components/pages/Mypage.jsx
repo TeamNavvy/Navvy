@@ -7,7 +7,7 @@ import { PrimaryButton } from "../atoms/PrimaryButton";
 import { FileInput } from "../atoms/FileInput";
 import { FormField } from "../molecules/FormFiels";
 import { Box } from "@chakra-ui/react";
-import { SecretdInput } from "../atoms/PasswordInput";
+import { HeaderLayout } from "../templates/HeaderLayout";
 
 export const Mypage = () => {
   // セッションのユーザー情報の取得
@@ -99,48 +99,50 @@ export const Mypage = () => {
   };
 
   return (
-    <Box>
-      <h1>マイページ</h1>
-      {myInfo.image_url && <img src={myInfo.image_url} />}
+    <HeaderLayout>
+      <Box>
+        <h1>マイページ</h1>
+        {myInfo.image_url && <img src={myInfo.image_url} />}
 
-      <FormField label="ユーザー名の変更">
-        <PrimaryInput
-          value={newName}
-          onChange={(e) => setNewName(e.target.value)}
-        />
-      </FormField>
-      <FormField label="アイコンの変更">
-        <FileInput
-          type="file"
-          accept="image/*"
-          onChange={(e) => setNewIcon(e.target.files[0])}
-        />
-      </FormField>
-      <FormField label="パスワードの変更">
-        <SecretdInput
-          type="password"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-        />
-      </FormField>
-      <FormField label="自宅の登録・変更">
-        <PrimaryInput
-          value={newMyHome}
-          onChange={(e) => setNewMyHome(e.target.value)}
-        />
-      </FormField>
-      <PrimaryButton onClick={handleUpload} disabled={loading}>
-        {loading ? "保存中・・・" : "変更を保存"}
-      </PrimaryButton>
-      {myInfo.admin === 1 ? (
-        <RegisterFamily
-          searchWord={searchWord}
-          setSearchWord={setSearchword}
-          user={user}
-        />
-      ) : (
-        <div></div>
-      )}
-    </Box>
+        <FormField label="ユーザー名の変更">
+          <PrimaryInput
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+          />
+        </FormField>
+        <FormField label="アイコンの変更">
+          <FileInput
+            type="file"
+            accept="image/*"
+            onChange={(e) => setNewIcon(e.target.files[0])}
+          />
+        </FormField>
+        <FormField label="パスワードの変更">
+          <PrimaryInput
+            type="password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+          />
+        </FormField>
+        <FormField label="自宅の登録・変更">
+          <PrimaryInput
+            value={newMyHome}
+            onChange={(e) => setNewMyHome(e.target.value)}
+          />
+        </FormField>
+        <PrimaryButton onClick={handleUpload} disabled={loading}>
+          {loading ? "保存中・・・" : "変更を保存"}
+        </PrimaryButton>
+        {myInfo.admin === 1 ? (
+          <RegisterFamily
+            searchWord={searchWord}
+            setSearchWord={setSearchword}
+            user={user}
+          />
+        ) : (
+          <div></div>
+        )}
+      </Box>
+    </HeaderLayout>
   );
 };
