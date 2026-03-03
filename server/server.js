@@ -73,6 +73,7 @@ app.post("/api/logout", (req, res) => {
 app.post("/api/home", async (req, res) => {
   const { latitude, longitude, user } = req.body;
   // console.log("latitude:", latitude);
+  // console.log("latitude:", latitude);
   // const longitude = req.body.currentPosition.longitude;
 
   const [location] = await knex("history")
@@ -155,10 +156,89 @@ app.post("/api/register", async (req, res) => {
 });
 
 // ユーザー検索機能(family登録用)
-app.get("/api/register/:name", async (req, res) => {
+// todo：部分検索できると◎
+app.get("/api/user/:name", async (req, res) => {
   const name = req.params.name;
   const result = await knex("users").where({ name: name }).select("*");
   res.send(result);
+});
+
+// family登録機能
+app.post("/api/family/register/:name", async (req, res) => {
+  const userId = req.session.user.id;
+  const targetName = req.params.name;
+  const target = await knex("users").where({ name: targetName }).first();
+  await knex("family").insert({
+    user_id: userId,
+    family_id: target.id,
+  });
+
+  return res.status(200).json({
+    message: "family登録完了",
+  });
+});
+
+// 既存familyメンバー取得機能
+app.get("/api/family/:id", async (req, res) => {
+  const userId = Number(req.params.id);
+  const familyIds = (
+    await knex("family").where({ user_id: userId }).select("family_id")
+  ).map((el) => el.family_id);
+  if (familyIds.length === 0) {
+    return res.send([]);
+  }
+
+  const family = await knex("users")
+    .whereIn("id", familyIds)
+    .select("id", "name", "image_url");
+
+  return res.send(family);
+});
+
+// ファミリー削除機能
+app.delete("/api/family/:id", async (req, res) => {
+  const userId = req.session.user.id;
+  const targetId = Number(req.params.id);
+  await knex("family").where({ user_id: userId, family_id: targetId }).del();
+  return res.json({ message: "family削除完了" });
+});
+
+// status取得
+app.get("/api/status/:userId", async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const result = await knex("user_status").where({ user_id: userId }).first();
+    res.json(result || {});
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "status取得エラー" });
+  }
+});
+
+// status updateメソッド（データが無い1回目はinsertする）
+app.post("/api/status", async (req, res) => {
+  const { userId, emotion, comment } = req.body;
+  try {
+    const exist = await knex("user_status").where({ user_id: userId }).first();
+
+    if (exist) {
+      await knex("user_status")
+        .where({ user_id: userId })
+        .update({ emotion, comment, updated_at: knex.fn.now() });
+    } else {
+      await knex("user_status").insert({
+        user_id: userId,
+        emotion,
+        comment,
+        updated_at: knex.fn.now(),
+      });
+    }
+
+    res.json({ message: "保存しました" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "status更新エラー" });
+  }
 });
 
 // 家族取得
