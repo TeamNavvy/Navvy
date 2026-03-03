@@ -2,11 +2,16 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useUser } from "../UserContext";
 import { RegisterFamily } from "./RegisterFamily";
-import { use } from "react";
+import { PrimaryInput } from "../atoms/PrimaryInput";
+import { PrimaryButton } from "../atoms/PrimaryButton";
+import { FileInput } from "../atoms/FileInput";
+import { FormField } from "../molecules/FormFiels";
+import { Box } from "@chakra-ui/react";
+import { SecretdInput } from "../atoms/PasswordInput";
 
 export const Mypage = () => {
   // セッションのユーザー情報の取得
-  const { user, setUser } = useUser();
+  const { user } = useUser();
   const [newName, setNewName] = useState("");
   const [newIcon, setNewIcon] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -94,40 +99,39 @@ export const Mypage = () => {
   };
 
   return (
-    <>
+    <Box>
       <h1>マイページ</h1>
       {myInfo.image_url && <img src={myInfo.image_url} />}
 
-      <div>
-        ユーザー名の変更
-        <input value={newName} onChange={(e) => setNewName(e.target.value)} />
-      </div>
-      <div>
-        アイコンの変更
-        <input
+      <FormField label="ユーザー名の変更">
+        <PrimaryInput
+          value={newName}
+          onChange={(e) => setNewName(e.target.value)}
+        />
+      </FormField>
+      <FormField label="アイコンの変更">
+        <FileInput
           type="file"
           accept="image/*"
           onChange={(e) => setNewIcon(e.target.files[0])}
         />
-      </div>
-      <div>
-        パスワードの変更
-        <input
+      </FormField>
+      <FormField label="パスワードの変更">
+        <SecretdInput
           type="password"
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
         />
-      </div>
-      <div>
-        自宅の登録・変更
-        <input
+      </FormField>
+      <FormField label="自宅の登録・変更">
+        <PrimaryInput
           value={newMyHome}
           onChange={(e) => setNewMyHome(e.target.value)}
         />
-      </div>
-      <button onClick={handleUpload} disabled={loading}>
+      </FormField>
+      <PrimaryButton onClick={handleUpload} disabled={loading}>
         {loading ? "保存中・・・" : "変更を保存"}
-      </button>
+      </PrimaryButton>
       {myInfo.admin === 1 ? (
         <RegisterFamily
           searchWord={searchWord}
@@ -137,6 +141,6 @@ export const Mypage = () => {
       ) : (
         <div></div>
       )}
-    </>
+    </Box>
   );
 };

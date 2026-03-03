@@ -1,5 +1,8 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
+import { PrimaryButton } from "../atoms/PrimaryButton";
+import { PrimaryInput } from "../atoms/PrimaryInput";
+
 export const RegisterFamily = (props) => {
   const { searchWord, setSearchWord, user } = props;
   const [searchResult, setSearchResult] = useState([]);
@@ -42,7 +45,7 @@ export const RegisterFamily = (props) => {
 
   return (
     <>
-      <h2>ファミリー登録</h2>
+      <h1>ファミリー登録</h1>
       <div>
         ファミリーメンバー
         {family.map((member) => (
@@ -54,7 +57,8 @@ export const RegisterFamily = (props) => {
           </div>
         ))}
       </div>
-      <input
+      <PrimaryInput
+        value={searchWord}
         placeholder="search"
         onChange={(e) => setSearchWord(e.target.value)}
       />
@@ -75,9 +79,11 @@ export const RegisterFamily = (props) => {
               )}
               <span>{searchedUser.name}</span>
               {!family.some((member) => member.id === searchedUser.id) && (
-                <button onClick={() => handleAddFamily(searchedUser.name)}>
+                <PrimaryButton
+                  onClick={() => handleAddFamily(searchedUser.name)}
+                >
                   ＋追加
-                </button>
+                </PrimaryButton>
               )}
             </div>
           ))
