@@ -38,12 +38,16 @@ export const Header = () => {
         onClick={onClickToHome}
         justify="center"
       >
-        <Heading size="lg" color="orange.500">
-          Navvy
-        </Heading>
+        <Tooltip ml="20" label="ホーム画面" placement="bottom">
+          <Heading size="lg" mr="10" color="orange.500">
+            Navvy
+          </Heading>
+        </Tooltip>
       </Flex>
-      <Flex align="center" fontSize="md" flexGrow={2} justify="flex-end">
-        <Tooltip label="マイページ" placement="bottom">
+
+      <Flex align="center" gap={4}>
+        <Text size="sm">{user.name}がログイン中</Text>
+        <Tooltip ml="20" label="マイページ" placement="bottom">
           <Box
             cursor="pointer"
             onClick={onClickToMyPage}
@@ -51,10 +55,9 @@ export const Header = () => {
             transition="all 0.2s"
           >
             <VscAccount size={28} />
-            <Text>マイページ</Text>
           </Box>
         </Tooltip>
-        <PrimaryButton ml="6" size="sm" onClick={handleLogout}>
+        <PrimaryButton size="sm" onClick={handleLogout}>
           ログアウト
         </PrimaryButton>
       </Flex>
