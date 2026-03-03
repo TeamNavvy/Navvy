@@ -161,6 +161,22 @@ app.get("/api/register/:name", async (req, res) => {
   res.send(result);
 });
 
+// 家族取得
+app.get("/api/family/:userId", async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const family = await knex("family")
+      .leftJoin("users", "family.family_id", "users.id")
+      .select("users.id", "users.name")
+      .where("family.user_id", userId);
+
+    res.json(family);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "家族取得失敗" });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

@@ -97,6 +97,7 @@ export const Home = () => {
     <>
       <h1>地図表記デモ</h1>
       <button onClick={() => navigate("/myPage")}>マイページ</button>
+      <button onClick={() => navigate("/footPrint")}>足あとを見る</button>
       <MapContainer center={position} zoom={zoom}>
         <TileLayer
           attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
