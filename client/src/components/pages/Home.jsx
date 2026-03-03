@@ -1,14 +1,79 @@
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import { useNavigate } from "react-router-dom";
 import "leaflet/dist/leaflet.css";
 import "../../map.css";
 import L from "leaflet";
 import { useState, useEffect, useRef } from "react";
-L.Icon.Default.imagePath =
-  "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/";
+// L.Icon.Default.imagePath =
+//   "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/";
 import axios from "axios";
 //グローバルステート用
 import { useUser } from "../UserContext";
+
+// Popup 内専用コンポーネント（useMap が使えるようにする）
+const PopupContent = ({
+  emotion,
+  setEmotion,
+  comment,
+  setComment,
+  saveStatus,
+}) => {
+  const map = useMap();
+
+  const handleSave = async () => {
+    await saveStatus();
+    map.closePopup(); // ← 保存後にPopupを閉じる
+  };
+
+  return (
+    <div style={{ width: "200px" }}>
+      <div>
+        <strong>feeling</strong>
+        <select
+          value={emotion}
+          onChange={(e) => setEmotion(e.target.value)}
+          style={{
+            width: "100%",
+            marginTop: "5px",
+            padding: "5px",
+            fontSize: "18px",
+          }}
+        >
+          <option value="😃">😃</option>
+          <option value="🙂">🙂</option>
+          <option value="😐">😐</option>
+          <option value="😢">😢</option>
+          <option value="😡">😡</option>
+          <option value="👹">👹</option>
+        </select>
+      </div>
+
+      <div style={{ marginTop: "10px" }}>
+        <strong>comment</strong>
+        <textarea
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          rows={3}
+          style={{ width: "100%", marginTop: "5px" }}
+        />
+      </div>
+
+      <button
+        onClick={handleSave}
+        style={{
+          marginTop: "10px",
+          width: "100%",
+          padding: "5px",
+          background: "#4caf50",
+          color: "white",
+          borderRadius: "5px",
+        }}
+      >
+        保存
+      </button>
+    </div>
+  );
+};
 
 export const Home = () => {
   // user_status管理
@@ -126,12 +191,32 @@ export const Home = () => {
         emotion,
         comment,
       });
-      alert("保存しました！");
     } catch (err) {
       console.error(err);
       alert("保存に失敗しました");
     }
   };
+
+  // ピン + 絵文字のカスタムアイコン
+  const pinWithEmoji = L.divIcon({
+    html: `
+    <div style="display: flex; align-items: center;">
+      <img 
+        src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png"
+        style="width: 25px; height: 41px;"
+      />
+      <span style="
+        font-size: 20px;
+        margin-left: 4px;
+      ">
+        ${emotion}
+      </span>
+    </div>
+  `,
+    className: "",
+    iconSize: [40, 41],
+    iconAnchor: [20, 41],
+  });
 
   return (
     <>
@@ -144,6 +229,7 @@ export const Home = () => {
         />
         <Marker
           position={markerPosition}
+          icon={pinWithEmoji}
           eventHandlers={{
             click: () => {
               setLoading(true);
@@ -155,52 +241,13 @@ export const Home = () => {
             {loading ? (
               <div>読み込み中...</div>
             ) : (
-              <div style={{ width: "200px" }}>
-                <div>
-                  <strong>feeling</strong>
-                  <select
-                    value={emotion}
-                    onChange={(e) => setEmotion(e.target.value)}
-                    style={{
-                      width: "100%",
-                      marginTop: "5px",
-                      padding: "5px",
-                      fontSize: "18px",
-                    }}
-                  >
-                    <option value="😃">😃</option>
-                    <option value="🙂">🙂</option>
-                    <option value="😐">😐</option>
-                    <option value="😢">😢</option>
-                    <option value="😡">😡</option>
-                    <option value="👹">👹</option>
-                  </select>
-                </div>
-
-                <div style={{ marginTop: "10px" }}>
-                  <strong>comment</strong>
-                  <textarea
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                    rows={3}
-                    style={{ width: "100%", marginTop: "5px" }}
-                  />
-                </div>
-
-                <button
-                  onClick={saveStatus}
-                  style={{
-                    marginTop: "10px",
-                    width: "100%",
-                    padding: "5px",
-                    background: "#4caf50",
-                    color: "white",
-                    borderRadius: "5px",
-                  }}
-                >
-                  保存
-                </button>
-              </div>
+              <PopupContent
+                emotion={emotion}
+                setEmotion={setEmotion}
+                comment={comment}
+                setComment={setComment}
+                saveStatus={saveStatus}
+              />
             )}
           </Popup>
         </Marker>
