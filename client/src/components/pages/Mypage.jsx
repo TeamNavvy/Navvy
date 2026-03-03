@@ -55,6 +55,14 @@ export const Mypage = () => {
 
       if (Object.keys(payload).length > 0) {
         const response = await axios.patch("/api/myPage", payload);
+        setMyInfo((prev) => ({
+          ...prev,
+          ...(newName && { name: newName }),
+          ...(imageUrl && { image_url: imageUrl }),
+        }));
+        setNewName("");
+        setNewPassword("");
+        setNewMyHome("");
         alert(response.data.message);
       } else {
         alert("変更内容がありません");
@@ -131,11 +139,7 @@ export const Mypage = () => {
             />
           </FormField>
           <FormField label="アイコンの変更">
-            <FileInput
-              type="file"
-              accept="image/*"
-              onChange={(e) => setNewIcon(e.target.files[0])}
-            />
+            <FileInput type="file" accept="image/*" onChange={setNewIcon} />
           </FormField>
           <FormField label="パスワードの変更">
             <PrimaryInput
@@ -144,7 +148,7 @@ export const Mypage = () => {
               onChange={(e) => setNewPassword(e.target.value)}
             />
           </FormField>
-          <FormField label="自宅の登録・変更">
+          <FormField label="自宅の登録・変更 (○○県○○市○○1-1-1のように番地まで入力)">
             <PrimaryInput
               value={newMyHome}
               onChange={(e) => setNewMyHome(e.target.value)}

@@ -2,6 +2,7 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import { PrimaryButton } from "../atoms/PrimaryButton";
 import { PrimaryInput } from "../atoms/PrimaryInput";
+import { LuSearch } from "react-icons/lu";
 import {
   Avatar,
   Divider,
@@ -12,6 +13,9 @@ import {
   Text,
   Box,
   HStack,
+  IconButton,
+  InputGroup,
+  InputRightElement,
 } from "@chakra-ui/react";
 
 export const RegisterFamily = (props) => {
@@ -106,14 +110,23 @@ export const RegisterFamily = (props) => {
 
         <CardBody>
           <Text color="gray.500">新規追加</Text>
-          <PrimaryInput
-            value={searchWord}
-            placeholder="search"
-            onChange={(e) => setSearchWord(e.target.value)}
-          />
-          <PrimaryButton mt="3" onClick={handleSearch}>
-            検索
-          </PrimaryButton>
+          <InputGroup>
+            <PrimaryInput
+              value={searchWord}
+              placeholder="search"
+              onChange={(e) => setSearchWord(e.target.value)}
+            />
+
+            <InputRightElement>
+              <IconButton
+                aria-label="Search"
+                icon={<LuSearch />}
+                size="sm"
+                variant="ghost"
+                onClick={handleSearch}
+              />
+            </InputRightElement>
+          </InputGroup>
           {/* 検索結果の表示 */}
           <div>
             {searchResult.length === 0 ? (
