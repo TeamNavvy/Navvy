@@ -47,14 +47,15 @@ export const Home = () => {
   };
 
   // 家族の位置情報取得
-  // const fetchFamilyPositions = async () => {
-  //   try {
-  //     const res = await axios.get(`/api/family-positions/${user.id}`);
-  //     setFamilyMembers(res.data);
-  //   } catch (err) {
-  //     console.error("家族データ取得失敗:", err);
-  //   }
-  // };
+  const fetchFamilyPositions = async () => {
+    try {
+      const res = await axios.get(`/api/family-positions/${user.id}`);
+      // setFamilyMembers(res.data);
+      console.log(res.data, "*******");
+    } catch (err) {
+      console.error("家族データ取得失敗:", err);
+    }
+  };
 
   //現在地DB保存
   const postPosition = async (currentPosition, startTime) => {
@@ -99,7 +100,7 @@ export const Home = () => {
       setStayMinutes(diff);
 
       postPosition(result, lastStartTime);
-      // fetchFamilyPositions();
+      fetchFamilyPositions();
     });
   };
 

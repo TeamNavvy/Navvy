@@ -194,7 +194,7 @@ app.get("/api/family/:id", async (req, res) => {
   return res.send(family);
 });
 
-// 既存familyメンバー取得機能
+// historyの最新のものを取得
 app.get("/api/history/:id", async (req, res) => {
   const user_id = Number(req.params.id);
 
@@ -204,6 +204,27 @@ app.get("/api/history/:id", async (req, res) => {
     .first();
 
   return res.send(result);
+});
+
+// 既存familyメンバーの位置情報取得機能
+app.get("/api/family-positions/:id", async (req, res) => {
+  const id = Number(req.params.id);
+  const familyPos = await knex("family")
+    .join("history", "family.family_id", "history.user_id")
+    .where("family.user_id", id)
+    .distinctOn("history.user_id") // ユーザーごとに重複を排除
+    .select(
+      "history.user_id",
+      "history.latitude",
+      "history.longitude",
+      "history.created_at",
+    )
+    .orderBy([
+      { column: "history.user_id" },
+      { column: "history.created_at", order: "desc" },
+    ]);
+
+  return res.send(familyPos);
 });
 
 app.listen(PORT, () => {
