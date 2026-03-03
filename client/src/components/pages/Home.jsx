@@ -51,7 +51,7 @@ export const Home = () => {
       setCurrentPosition(result);
       positionRef.current = result;
 
-      console.log("現在地取得");
+      // console.log("現在地取得");
     });
   };
 
