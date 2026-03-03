@@ -72,7 +72,7 @@ app.post("/api/logout", (req, res) => {
 // 現在地をhistoryTBに格納;
 app.post("/api/home", async (req, res) => {
   const { latitude, longitude, user } = req.body;
-  console.log("latitude:", latitude);
+  // console.log("latitude:", latitude);
   // const longitude = req.body.currentPosition.longitude;
 
   const [location] = await knex("history")
@@ -159,6 +159,13 @@ app.get("/api/register/:name", async (req, res) => {
   const name = req.params.name;
   const result = await knex("users").where({ name: name }).select("*");
   res.send(result);
+});
+
+// status取得
+app.get("/api/status/:userId", async (req, res) => {
+  const { userId } = req.params;
+  const result = await knex("user_status").where({ user_id: userId }).first();
+  res.json(result || {});
 });
 
 app.listen(PORT, () => {
