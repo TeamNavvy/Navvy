@@ -2,6 +2,17 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import { PrimaryButton } from "../atoms/PrimaryButton";
 import { PrimaryInput } from "../atoms/PrimaryInput";
+import {
+  Avatar,
+  Divider,
+  CardBody,
+  CardHeader,
+  Heading,
+  Card,
+  Text,
+  Box,
+  HStack,
+} from "@chakra-ui/react";
 
 export const RegisterFamily = (props) => {
   const { searchWord, setSearchWord, user } = props;
@@ -57,59 +68,84 @@ export const RegisterFamily = (props) => {
 
   return (
     <>
-      <h1>ファミリー登録</h1>
-      <div>
-        ファミリーメンバー
-        {family.length === 0 ? (
-          <p>familyの登録がありません</p>
-        ) : (
-          family.map((member) => (
-            <div key={member.id}>
-              {member.image_url && (
-                <img src={member.image_url} alt={member.name} width={50} />
-              )}
-              <span>{member.name}</span>
-              <PrimaryButton onClick={() => handleDeleteFamily(member.id)}>
-                {" "}
-                ✕解除
-              </PrimaryButton>
-            </div>
-          ))
-        )}
-      </div>
-      <PrimaryInput
-        value={searchWord}
-        placeholder="search"
-        value={searchWord}
-        onChange={(e) => setSearchWord(e.target.value)}
-      />
-      <PrimaryButton onClick={handleSearch}>検索</PrimaryButton>
-      {/* 検索結果の表示 */}
-      <div>
-        {searchResult.length === 0 ? (
-          <p>該当ユーザーが存在しません</p>
-        ) : (
-          searchResult.map((searchedUser) => (
-            <div key={searchedUser.id}>
-              {searchedUser.image_url && (
-                <img
-                  src={searchedUser.image_url}
-                  alt={searchedUser.name}
-                  width={50}
-                />
-              )}
-              <span>{searchedUser.name}</span>
-              {!family.some((member) => member.id === searchedUser.id) && (
-                <PrimaryButton
-                  onClick={() => handleAddFamily(searchedUser.name)}
-                >
-                  ＋追加
-                </PrimaryButton>
-              )}
-            </div>
-          ))
-        )}
-      </div>
+      <Card maxW="xl" mx="auto" mt="10" mb="4" borderRadius="xl">
+        <CardHeader>
+          <Heading>ファミリー登録</Heading>
+          <Box>
+            <Text color="gray.500">ファミリーメンバー一覧</Text>
+            {family.length === 0 ? (
+              <Text color="red.400" fontSize="sm" textAlign="center">
+                ファミリーの登録がありません
+              </Text>
+            ) : (
+              family.map((member) => (
+                <HStack key={member.id} justify="space-between" p="3">
+                  <HStack spacing="4">
+                    <Avatar
+                      size="sm"
+                      src={member.image_url || undefined}
+                      name={member.name}
+                    />
+                    <Text>{member.name}</Text>
+                  </HStack>
+
+                  <PrimaryButton
+                    size="sm"
+                    bg="red.500"
+                    onClick={() => handleDeleteFamily(member.id)}
+                  >
+                    ✕解除
+                  </PrimaryButton>
+                </HStack>
+              ))
+            )}
+          </Box>
+        </CardHeader>
+
+        <Divider />
+
+        <CardBody>
+          <Text color="gray.500">新規追加</Text>
+          <PrimaryInput
+            value={searchWord}
+            placeholder="search"
+            onChange={(e) => setSearchWord(e.target.value)}
+          />
+          <PrimaryButton mt="3" onClick={handleSearch}>
+            検索
+          </PrimaryButton>
+          {/* 検索結果の表示 */}
+          <div>
+            {searchResult.length === 0 ? (
+              <Text fontSize="sm" textAlign="center">
+                該当ユーザーが存在しません
+              </Text>
+            ) : (
+              searchResult.map((searchedUser) => (
+                <HStack key={searchedUser.id} justify="space-between" p="3">
+                  <HStack spacing={4}>
+                    <Avatar
+                      size="sm"
+                      src={searchedUser.image_url || undefined}
+                      name={searchedUser.name}
+                    />
+                    <Text>{searchedUser.name}</Text>
+                  </HStack>
+                  {!family.some((member) => member.id === searchedUser.id) && (
+                    <PrimaryButton
+                      size="sm"
+                      bg="green.500"
+                      onClick={() => handleAddFamily(searchedUser.name)}
+                    >
+                      ＋追加
+                    </PrimaryButton>
+                  )}
+                </HStack>
+              ))
+            )}
+          </div>
+        </CardBody>
+      </Card>
     </>
   );
 };
