@@ -133,10 +133,27 @@ export const Home = () => {
     });
   };
 
+  // user_status取得
+  const fetchStatus = async () => {
+    try {
+      const res = await axios.get(`/api/status/${user.id}`);
+      if (res.data) {
+        setEmotion(res.data.emotion || "😃");
+        setComment(res.data.comment || "");
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // 初回、30秒ごとに位置情報取得して保存
   useEffect(() => {
     //初回位置情報取得＆保存
     first();
+    //statusも読み込む
+    fetchStatus();
 
     //10秒ごと位置情報取得
     setInterval(handleGetPosition, 10000);
@@ -168,21 +185,6 @@ export const Home = () => {
   // const [comment, setComment] = useState("");
   // const [loading, setLoading] = useState(true);
 
-  // user_status取得
-  const fetchStatus = async () => {
-    try {
-      const res = await axios.get(`/api/status/${user.id}`);
-      if (res.data) {
-        setEmotion(res.data.emotion || "😃");
-        setComment(res.data.comment || "");
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   // 保存処理
   const saveStatus = async () => {
     try {
@@ -197,25 +199,54 @@ export const Home = () => {
     }
   };
 
-  // ピン + 絵文字のカスタムアイコン
-  const pinWithEmoji = L.divIcon({
+  const pinWithEmojiAndComment = L.divIcon({
     html: `
-    <div style="display: flex; align-items: center;">
-      <img 
-        src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png"
-        style="width: 25px; height: 41px;"
-      />
-      <span style="
-        font-size: 20px;
-        margin-left: 4px;
+    <div style="
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    ">
+      <!-- 吹き出し（コメント） -->
+      <div style="
+        background: white;
+        padding: 6px 10px;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+        max-width: 160px;
+        font-size: 14px;
+        position: relative;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       ">
-        ${emotion}
-      </span>
+        ${comment || ""}
+      </div>
+
+      <!-- 三角（吹き出しのしっぽ） -->
+      <div style="
+        width: 0;
+        height: 0;
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        border-top: 8px solid white;   
+        margin-top: -2px;              
+      "></div>
+
+      <!-- ピン + 絵文字（横並び） -->
+      <div style="display: flex; align-items: center; margin-top: 4px;">
+        <img 
+          src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png"
+          style="width: 25px; height: 41px;"
+        />
+        <span style="font-size: 22px; margin-left: 4px;">
+          ${emotion}
+        </span>
+      </div>
     </div>
   `,
     className: "",
-    iconSize: [40, 41],
-    iconAnchor: [20, 41],
+    iconSize: [160, 100],
+    iconAnchor: [20, 100],
   });
 
   return (
@@ -229,7 +260,7 @@ export const Home = () => {
         />
         <Marker
           position={markerPosition}
-          icon={pinWithEmoji}
+          icon={pinWithEmojiAndComment}
           eventHandlers={{
             click: () => {
               setLoading(true);
