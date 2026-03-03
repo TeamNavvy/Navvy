@@ -164,8 +164,34 @@ app.get("/api/register/:name", async (req, res) => {
 // status取得
 app.get("/api/status/:userId", async (req, res) => {
   const { userId } = req.params;
-  const result = await knex("user_status").where({ user_id: userId }).first();
-  res.json(result || {});
+  try {
+    const result = await knex("user_status").where({ user_id: userId }).first();
+    res.json(result || {});
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "status取得エラー" });
+  }
+});
+
+// status updateメソッド（データが無い1回目はinsertする）
+app.post("api/status", async (req, res) => {
+  const { userId, emotion, comment } = req.body;
+  try {
+    const exist = await knex("user_status").where({ user_id: userId }).first();
+
+    if (exist) {
+      await knex("user_status")
+        .where({ user_id: userId })
+        .update({ emotion, comment, update_at: knex.fn.now() });
+    } else {
+      await knex("user_status").insert({ user_id: userId, emotion, comment });
+    }
+
+    res.json({ message: "保存しました" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "status更新エラー" });
+  }
 });
 
 app.listen(PORT, () => {
