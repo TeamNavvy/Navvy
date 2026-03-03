@@ -15,43 +15,59 @@ export const Home = () => {
   const { user, setUser } = useUser();
   //現在地用
   const [currentPosition, setCurrentPosition] = useState();
-  let navigate = useNavigate();
+  const navigate = useNavigate();
   const positionRef = useRef(null);
 
   const [stayStartTime, setStayStartTime] = useState(new Date()); // 自分の滞在開始時刻
   const [stayMinutes, setStayMinutes] = useState(0); // 自分の滞在分
   const [familyMembers, setFamilyMembers] = useState([]); // 家族の位置・滞在データ
 
+  // 移動したのかの判定
+  const hasMoved = (p1, p2) => {
+    if (!p1 || !p2) return false;
+    const threshold = 0.0001; // 約10〜15mの誤差許容
+    return (
+      Math.abs(p1.latitude - p2.latitude) > threshold ||
+      Math.abs(p1.longitude - p2.longitude) > threshold
+    );
+  };
+
+  // 家族の位置情報取得
+  // const fetchFamilyPositions = async () => {
+  //   try {
+  //     const res = await axios.get(`/api/family-positions/${user.id}`);
+  //     setFamilyMembers(res.data);
+  //   } catch (err) {
+  //     console.error("家族データ取得失敗:", err);
+  //   }
+  // };
+
   //現在地DB保存
   const postPosition = async (currentPosition) => {
     if (!currentPosition) {
-      // console.log("ここcurrentPosition:", currentPosition);
       return;
     }
-    // console.log("ログインユーザ情報：", user);
-    // console.log("currentPosition:", currentPosition);
     try {
       const res = await axios.post("/api/home", {
         latitude: currentPosition.latitude,
         longitude: currentPosition.longitude,
         user,
+        // stayStartTime: stayStartTime
       });
-      // console.log("位置保存成功");
     } catch (err) {
       console.error(err);
-      // console.log("現在地が保存できません");
     }
   };
 
-  //現在地取得  let navigate = useNavigate();
-
+  //現在地取得
   const handleGetPosition = () => {
     navigator.geolocation.getCurrentPosition((position) => {
       const result = position.coords;
+      if (hasMoved(positionRef.current, result)) {
+        setStayStartTime(new Date());
+      }
       setCurrentPosition(result);
       positionRef.current = result;
-
-      // console.log("現在地取得");
     });
   };
 
@@ -60,10 +76,10 @@ export const Home = () => {
     navigator.geolocation.getCurrentPosition((position) => {
       const result = position.coords;
       setCurrentPosition(result);
-
-      console.log("初回 現在地取得");
-
+      positionRef.current = result;
+      setStayStartTime(new Date());
       postPosition(result);
+      // fetchFamilyPositions();
     });
   };
 
@@ -71,13 +87,25 @@ export const Home = () => {
   useEffect(() => {
     //初回位置情報取得＆保存
     first();
-
     //10秒ごと位置情報取得
-    setInterval(handleGetPosition, 10000);
+    const posInterval = setInterval(handleGetPosition, 10000);
     //20秒ごと位置情報保存
-    setInterval(() => {
+    const saveInterval = setInterval(() => {
       postPosition(positionRef.current);
     }, 20000);
+    // 30秒ごとに家族の位置情報取得
+    // const familyInterval = setInterval(fetchFamilyPositions, 30000);
+    // 滞在時間表示用
+    const timerInterval = setInterval(() => {
+      const diff = Math.floor((new Date() - stayStartTime) / 60000);
+      setStayMinutes(diff);
+    }, 10000);
+    return () => {
+      clearInterval(posInterval);
+      clearInterval(saveInterval);
+      // clearInterval(familyInterval);
+      clearInterval(timerInterval);
+    };
   }, []);
 
   if (!currentPosition) {
@@ -91,16 +119,11 @@ export const Home = () => {
   // 初期マップズームレベル
   const zoom = 30;
 
-  // useEffect(() => {
-  //   fetch(`/api`)
-  //     .then((res) => res.json())
-  //     .then((data) => console.log(data, "******"));
-  // }, []);
-
   return (
     <>
       <h1>地図表記デモ</h1>
       <button onClick={() => navigate("/myPage")}>マイページ</button>
+      <p>{stayMinutes}</p>
       <MapContainer center={position} zoom={zoom}>
         <TileLayer
           attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
