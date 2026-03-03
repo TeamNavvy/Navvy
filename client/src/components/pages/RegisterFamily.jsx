@@ -69,10 +69,10 @@ export const RegisterFamily = (props) => {
                 <img src={member.image_url} alt={member.name} width={50} />
               )}
               <span>{member.name}</span>
-              <button onClick={() => handleDeleteFamily(member.id)}>
+              <PrimaryButton onClick={() => handleDeleteFamily(member.id)}>
                 {" "}
                 ✕解除
-              </button>
+              </PrimaryButton>
             </div>
           ))
         )}
@@ -83,7 +83,7 @@ export const RegisterFamily = (props) => {
         value={searchWord}
         onChange={(e) => setSearchWord(e.target.value)}
       />
-      <button onClick={handleSearch}>検索</button>
+      <PrimaryButton onClick={handleSearch}>検索</PrimaryButton>
       {/* 検索結果の表示 */}
       <div>
         {searchResult.length === 0 ? (
