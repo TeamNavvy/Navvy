@@ -194,6 +194,52 @@ app.get("/api/family/:id", async (req, res) => {
   return res.send(family);
 });
 
+// ファミリー削除機能
+app.delete("/api/family/:id", async (req, res) => {
+  const userId = req.session.user.id;
+  const targetId = Number(req.params.id);
+  await knex("family").where({ user_id: userId, family_id: targetId }).del();
+  return res.json({ message: "family削除完了" });
+});
+
+// status取得
+app.get("/api/status/:userId", async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const result = await knex("user_status").where({ user_id: userId }).first();
+    res.json(result || {});
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "status取得エラー" });
+  }
+});
+
+// status updateメソッド（データが無い1回目はinsertする）
+app.post("/api/status", async (req, res) => {
+  const { userId, emotion, comment } = req.body;
+  try {
+    const exist = await knex("user_status").where({ user_id: userId }).first();
+
+    if (exist) {
+      await knex("user_status")
+        .where({ user_id: userId })
+        .update({ emotion, comment, updated_at: knex.fn.now() });
+    } else {
+      await knex("user_status").insert({
+        user_id: userId,
+        emotion,
+        comment,
+        updated_at: knex.fn.now(),
+      });
+    }
+
+    res.json({ message: "保存しました" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "status更新エラー" });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
