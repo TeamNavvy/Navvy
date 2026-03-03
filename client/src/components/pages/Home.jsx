@@ -12,8 +12,8 @@ import { useUser } from "../UserContext";
 
 // Popup 内専用コンポーネント（useMap が使えるようにする）
 const PopupContent = ({
-  emotion,
-  setEmotion,
+  status,
+  setStatus,
   comment,
   setComment,
   saveStatus,
@@ -28,10 +28,10 @@ const PopupContent = ({
   return (
     <div style={{ width: "200px" }}>
       <div>
-        <strong>feeling</strong>
+        <strong>Status</strong>
         <select
-          value={emotion}
-          onChange={(e) => setEmotion(e.target.value)}
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
           style={{
             width: "100%",
             marginTop: "5px",
@@ -39,17 +39,18 @@ const PopupContent = ({
             fontSize: "18px",
           }}
         >
-          <option value="😃">😃</option>
-          <option value="🙂">🙂</option>
-          <option value="😐">😐</option>
-          <option value="😢">😢</option>
-          <option value="😡">😡</option>
-          <option value="👹">👹</option>
+          <option value="🏠">🏠</option>
+          <option value="🏫">🏫</option>
+          <option value="🏃‍♀️">🏃‍♀️</option>
+          <option value="🛝">🛝</option>
+          <option value="✍🏻">✍🏻</option>
+          <option value="💰">💰</option>
+          <option value="🧓🧑‍🦳">🧓🧑‍🦳</option>
         </select>
       </div>
 
       <div style={{ marginTop: "10px" }}>
-        <strong>comment</strong>
+        <strong>Comment</strong>
         <textarea
           value={comment}
           onChange={(e) => setComment(e.target.value)}
@@ -77,7 +78,7 @@ const PopupContent = ({
 
 export const Home = () => {
   // user_status管理
-  const [emotion, setEmotion] = useState("😃");
+  const [status, setStatus] = useState("");
   const [comment, setComment] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -138,7 +139,7 @@ export const Home = () => {
     try {
       const res = await axios.get(`/api/status/${user.id}`);
       if (res.data) {
-        setEmotion(res.data.emotion || "😃");
+        setStatus(res.data.status || "");
         setComment(res.data.comment || "");
       }
     } catch (err) {
@@ -181,7 +182,7 @@ export const Home = () => {
   // }, []);
 
   // // user_status管理
-  // const [emotion, setEmotion] = useState("");
+  // const [status, setStatus] = useState("");
   // const [comment, setComment] = useState("");
   // const [loading, setLoading] = useState(true);
 
@@ -190,7 +191,7 @@ export const Home = () => {
     try {
       await axios.post("/api/status", {
         userId: user.id,
-        emotion,
+        status,
         comment,
       });
     } catch (err) {
@@ -239,7 +240,7 @@ export const Home = () => {
           style="width: 25px; height: 41px;"
         />
         <span style="font-size: 22px; margin-left: 4px;">
-          ${emotion}
+          ${status}
         </span>
       </div>
     </div>
@@ -273,8 +274,8 @@ export const Home = () => {
               <div>読み込み中...</div>
             ) : (
               <PopupContent
-                emotion={emotion}
-                setEmotion={setEmotion}
+                status={status}
+                setStatus={setStatus}
                 comment={comment}
                 setComment={setComment}
                 saveStatus={saveStatus}
