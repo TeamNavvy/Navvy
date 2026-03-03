@@ -129,7 +129,11 @@ export const Mypage = () => {
         {loading ? "保存中・・・" : "変更を保存"}
       </button>
       {myInfo.admin === 1 ? (
-        <RegisterFamily searchWord={searchWord} setSearchWord={setSearchword} />
+        <RegisterFamily
+          searchWord={searchWord}
+          setSearchWord={setSearchword}
+          user={user}
+        />
       ) : (
         <div></div>
       )}

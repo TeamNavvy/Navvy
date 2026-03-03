@@ -155,10 +155,51 @@ app.post("/api/register", async (req, res) => {
 });
 
 // ユーザー検索機能(family登録用)
-app.get("/api/register/:name", async (req, res) => {
+// todo：部分検索できると◎
+app.get("/api/user/:name", async (req, res) => {
   const name = req.params.name;
   const result = await knex("users").where({ name: name }).select("*");
   res.send(result);
+});
+
+// family登録機能
+app.post("/api/family/register/:name", async (req, res) => {
+  const userId = req.session.user.id;
+  const targetName = req.params.name;
+  const target = await knex("users").where({ name: targetName }).first();
+  await knex("family").insert({
+    user_id: userId,
+    family_id: target.id,
+  });
+
+  return res.status(200).json({
+    message: "family登録完了",
+  });
+});
+
+// 既存familyメンバー取得機能
+app.get("/api/family/:id", async (req, res) => {
+  const userId = Number(req.params.id);
+  const familyIds = (
+    await knex("family").where({ user_id: userId }).select("family_id")
+  ).map((el) => el.family_id);
+  if (familyIds.length === 0) {
+    return res.send([]);
+  }
+
+  const family = await knex("users")
+    .whereIn("id", familyIds)
+    .select("id", "name", "image_url");
+
+  return res.send(family);
+});
+
+// ファミリー削除機能
+app.delete("/api/family/:id", async (req, res) => {
+  const userId = req.session.user.id;
+  const targetId = Number(req.params.id);
+  await knex("family").where({ user_id: userId, family_id: targetId }).del();
+  return res.json({ message: "family削除完了" });
 });
 
 // status取得
