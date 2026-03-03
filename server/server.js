@@ -72,7 +72,7 @@ app.post("/api/logout", (req, res) => {
 // 現在地をhistoryTBに格納;
 app.post("/api/home", async (req, res) => {
   const { latitude, longitude, user } = req.body;
-  console.log("latitude:", latitude);
+  // console.log("latitude:", latitude);
   // const longitude = req.body.currentPosition.longitude;
 
   const [location] = await knex("history")
@@ -192,6 +192,14 @@ app.get("/api/family/:id", async (req, res) => {
     .select("id", "name", "image_url");
 
   return res.send(family);
+});
+
+// ファミリー削除機能
+app.delete("/api/family/:id", async (req, res) => {
+  const userId = req.session.user.id;
+  const targetId = Number(req.params.id);
+  await knex("family").where({ user_id: userId, family_id: targetId }).del();
+  return res.json({ message: "family削除完了" });
 });
 
 app.listen(PORT, () => {
