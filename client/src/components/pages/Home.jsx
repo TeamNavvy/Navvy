@@ -24,15 +24,15 @@ export const Home = () => {
       console.log("ここcurrentPosition:", currentPosition);
       return;
     }
-    console.log("ログインユーザ情報：", user);
-    console.log("currentPosition:", currentPosition);
+    // console.log("ログインユーザ情報：", user);
+    // console.log("currentPosition:", currentPosition);
     try {
       const res = await axios.post("/api/home", {
         latitude: currentPosition.latitude,
         longitude: currentPosition.longitude,
         user,
       });
-      console.log("位置保存成功");
+      // console.log("位置保存成功");
     } catch (err) {
       console.error(err);
       console.log("現在地が保存できません");
@@ -47,7 +47,7 @@ export const Home = () => {
       setCurrentPosition(result);
       positionRef.current = result;
 
-      console.log("現在地取得");
+      // console.log("現在地取得");
     });
   };
 
