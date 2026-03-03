@@ -72,11 +72,11 @@ app.post("/api/logout", (req, res) => {
 // 現在地をhistoryTBに格納;
 app.post("/api/home", async (req, res) => {
   const { latitude, longitude, user } = req.body;
-  console.log("latitude:", latitude);
+  // console.log("latitude:", latitude);
   // const longitude = req.body.currentPosition.longitude;
 
   const [location] = await knex("history")
-    .insert({ user_id: 3, latitude, longitude })
+    .insert({ user_id: user.id, latitude, longitude })
     .returning("*");
 
   res.json(location);
