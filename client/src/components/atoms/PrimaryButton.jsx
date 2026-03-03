@@ -1,7 +1,13 @@
 import { Button } from "@chakra-ui/react";
 
 export const PrimaryButton = (props) => {
-  const { children, disabled = false, loading = false, onClick } = props;
+  const {
+    children,
+    disabled = false,
+    loading = false,
+    onClick,
+    ...rest
+  } = props;
   return (
     <Button
       bg="gray"
@@ -10,6 +16,7 @@ export const PrimaryButton = (props) => {
       isdisabled={disabled || loading}
       isLoading={loading}
       onClick={onClick}
+      {...rest}
     >
       {children}
     </Button>
