@@ -18,14 +18,14 @@ export const Home = () => {
   const navigate = useNavigate();
   const positionRef = useRef(null);
 
-  const [stayStartTime, setStayStartTime] = useState(); // 自分の滞在開始時刻
+  const [stayStartTime, setStayStartTime] = useState(new Date()); // 自分の滞在開始時刻
   const [stayMinutes, setStayMinutes] = useState(0); // 自分の滞在分
   const [familyMembers, setFamilyMembers] = useState([]); // 家族の位置・滞在データ
 
   // 移動したのかの判定
   const hasMoved = (p1, p2) => {
     if (!p1 || !p2) return false;
-    const threshold = 0.0001; // 約10〜15mの誤差許容
+    const threshold = 0.0004; // 約10〜15mの誤差許容
     return (
       Math.abs(p1.latitude - p2.latitude) > threshold ||
       Math.abs(p1.longitude - p2.longitude) > threshold
@@ -36,7 +36,7 @@ export const Home = () => {
   const fetchMyPositionStatus = async () => {
     try {
       const res = await axios.get(`/api/history/${user.id}`);
-      const lastData = res.data[0];
+      const lastData = res.data;
       if (lastData && lastData.stay_start_time) {
         return new Date(lastData.stay_start_time);
       }
@@ -66,7 +66,7 @@ export const Home = () => {
         latitude: currentPosition.latitude,
         longitude: currentPosition.longitude,
         user,
-        // stay_start_time: startTime
+        stay_start_time: "2026-03-02T21:05:20.333Z",
       });
     } catch (err) {
       console.error(err);
@@ -79,6 +79,7 @@ export const Home = () => {
       const result = position.coords;
       if (hasMoved(positionRef.current, result)) {
         setStayStartTime(new Date());
+        console.log("移動した！");
       }
       setCurrentPosition(result);
       positionRef.current = result;
@@ -94,7 +95,9 @@ export const Home = () => {
       setCurrentPosition(result);
       positionRef.current = result;
       setStayStartTime(lastStartTime);
-      postPosition(result, lastStartTime);
+      const diff = Math.floor((new Date() - lastStartTime) / 60000);
+      setStayMinutes(diff);
+      postPosition(result);
       // fetchFamilyPositions();
     });
   };
@@ -104,10 +107,36 @@ export const Home = () => {
     //初回位置情報取得＆保存
     first();
     //10秒ごと位置情報取得
+    // const posInterval = setInterval(handleGetPosition, 10000);
+    // //20秒ごと位置情報保存
+    // const saveInterval = setInterval(() => {
+    //   postPosition(positionRef.current);
+    // }, 20000);
+    // // 30秒ごとに家族の位置情報取得
+    // // const familyInterval = setInterval(fetchFamilyPositions, 30000);
+    // // 滞在時間表示用
+    // const timerInterval = setInterval(() => {
+    //   const diff = Math.floor((new Date() - stayStartTime) / 60000);
+    //   setStayMinutes(diff);
+    // }, 10000);
+    // return () => {
+    //   clearInterval(posInterval);
+    //   clearInterval(saveInterval);
+    //   // clearInterval(familyInterval);
+    //   clearInterval(timerInterval);
+    // };
+  }, []);
+
+  useEffect(() => {
+    //初回位置情報取得＆保存
+    // first();
+    console.log("呼ばれた");
+    //10秒ごと位置情報取得
     const posInterval = setInterval(handleGetPosition, 10000);
     //20秒ごと位置情報保存
     const saveInterval = setInterval(() => {
       postPosition(positionRef.current);
+      console.log("DB保存!");
     }, 20000);
     // 30秒ごとに家族の位置情報取得
     // const familyInterval = setInterval(fetchFamilyPositions, 30000);
@@ -115,6 +144,7 @@ export const Home = () => {
     const timerInterval = setInterval(() => {
       const diff = Math.floor((new Date() - stayStartTime) / 60000);
       setStayMinutes(diff);
+      console.log("滞在時間更新!");
     }, 10000);
     return () => {
       clearInterval(posInterval);
@@ -122,7 +152,7 @@ export const Home = () => {
       // clearInterval(familyInterval);
       clearInterval(timerInterval);
     };
-  }, []);
+  }, [stayStartTime]);
 
   if (!currentPosition) {
     return <div>現在地取得中、お待ちください</div>;

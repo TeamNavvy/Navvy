@@ -71,12 +71,12 @@ app.post("/api/logout", (req, res) => {
 
 // 現在地をhistoryTBに格納;
 app.post("/api/home", async (req, res) => {
-  const { latitude, longitude, user } = req.body;
+  const { latitude, longitude, user, stay_start_time } = req.body;
   //   console.log("latitude:", latitude);
   // const longitude = req.body.currentPosition.longitude;
 
   const [location] = await knex("history")
-    .insert({ user_id: 3, latitude, longitude })
+    .insert({ user_id: user.id, latitude, longitude, stay_start_time })
     .returning("*");
 
   res.json(location);
@@ -192,6 +192,18 @@ app.get("/api/family/:id", async (req, res) => {
     .select("id", "name", "image_url");
 
   return res.send(family);
+});
+
+// 既存familyメンバー取得機能
+app.get("/api/history/:id", async (req, res) => {
+  const user_id = Number(req.params.id);
+
+  const result = await knex("history")
+    .where({ user_id })
+    .orderBy("created_at", "desc")
+    .first();
+
+  return res.send(result);
 });
 
 app.listen(PORT, () => {
