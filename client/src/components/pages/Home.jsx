@@ -87,12 +87,6 @@ export const Home = () => {
   // 初期マップズームレベル
   const zoom = 30;
 
-  // useEffect(() => {
-  //   fetch(`/api`)
-  //     .then((res) => res.json())
-  //     .then((data) => console.log(data, "******"));
-  // }, []);
-
   return (
     <>
       <h1>地図表記デモ</h1>

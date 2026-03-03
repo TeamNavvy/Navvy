@@ -177,6 +177,24 @@ app.get("/api/family/:userId", async (req, res) => {
   }
 });
 
+//選択された家族の今日の足あと取得（全件取得）
+app.get("/api/history/today/:userId", async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const history = await knex("history")
+      .select("*")
+      .where("user_id", userId)
+      .andWhere("created_at", ">=", knex.raw("CURRENT_DATE"))
+      .orderBy("created_at", "desc");
+
+    res.json(history);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "履歴取得エラー" });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
