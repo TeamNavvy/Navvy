@@ -1,8 +1,9 @@
 import axios from "axios";
 import { useUser } from "../UserContext";
 import { useNavigate } from "react-router-dom";
-import { Box, Heading, Flex, Link } from "@chakra-ui/react";
+import { Box, Heading, Flex, Tooltip, Text } from "@chakra-ui/react";
 import { PrimaryButton } from "../atoms/PrimaryButton";
+import { VscAccount } from "react-icons/vsc";
 
 export const Header = () => {
   const { user, setUser } = useUser();
@@ -33,19 +34,29 @@ export const Header = () => {
     >
       <Flex
         align="center"
-        mr={8}
         _hover={{ cursor: "pointer" }}
         onClick={onClickToHome}
+        justify="center"
       >
-        <Heading size="lg">Navvy</Heading>
+        <Heading size="lg" color="orange.500">
+          Navvy
+        </Heading>
       </Flex>
-      <Flex align="center" fontSize="md" flexGrow={2}>
-        <Box pr={4}>
-          <Link onClick={onClickToMyPage}>マイページ</Link>
-        </Box>
-      </Flex>
-      <Flex align="center" fontSize="sm">
-        <PrimaryButton onClick={handleLogout}>ログアウト</PrimaryButton>
+      <Flex align="center" fontSize="md" flexGrow={2} justify="flex-end">
+        <Tooltip label="マイページ" placement="bottom">
+          <Box
+            cursor="pointer"
+            onClick={onClickToMyPage}
+            _hover={{ opacity: 0.8, transform: "scale(1.05)" }}
+            transition="all 0.2s"
+          >
+            <VscAccount size={28} />
+            <Text>マイページ</Text>
+          </Box>
+        </Tooltip>
+        <PrimaryButton ml="6" size="sm" onClick={handleLogout}>
+          ログアウト
+        </PrimaryButton>
       </Flex>
     </Flex>
   );
