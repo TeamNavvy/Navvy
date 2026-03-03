@@ -11,6 +11,11 @@ import axios from "axios";
 import { useUser } from "../UserContext";
 
 export const Home = () => {
+  // user_status管理
+  const [emotion, setEmotion] = useState("😃");
+  const [comment, setComment] = useState("");
+  const [loading, setLoading] = useState(true);
+
   //user情報(グローバルステート)
   const { user, setUser } = useUser();
   //現在地用
@@ -83,7 +88,7 @@ export const Home = () => {
   // 初期値の緯度経度
   const position = [currentPosition.latitude, currentPosition.longitude];
   const markerPosition = [currentPosition.latitude, currentPosition.longitude];
-  const markerPosition2 = [35.8, 139.61];
+  // const markerPosition2 = [35.8, 139.61];
   // 初期マップズームレベル
   const zoom = 30;
 
@@ -93,10 +98,10 @@ export const Home = () => {
   //     .then((data) => console.log(data, "******"));
   // }, []);
 
-  // user_status管理
-  const [emotion, setEmotion] = useState("😃");
-  const [comment, setComment] = useState("");
-  const [loading, setLoading] = useState(true);
+  // // user_status管理
+  // const [emotion, setEmotion] = useState("");
+  // const [comment, setComment] = useState("");
+  // const [loading, setLoading] = useState(true);
 
   // user_status取得
   const fetchStatus = async () => {
@@ -137,9 +142,66 @@ export const Home = () => {
           attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <Marker position={markerPosition}>
+        <Marker
+          position={markerPosition}
+          eventHandlers={{
+            click: () => {
+              setLoading(true);
+              fetchStatus();
+            },
+          }}
+        >
           <Popup>
-            A pretty CSS3 popup. <br /> Easily customizable.
+            {loading ? (
+              <div>読み込み中...</div>
+            ) : (
+              <div style={{ width: "200px" }}>
+                <div>
+                  <strong>feeling</strong>
+                  <div
+                    style={{ display: "flex", gap: "8px", marginTop: "5px" }}
+                  >
+                    {["😃", "🙂", "😐", "😢", "😡", "👹"].map((e) => (
+                      <button
+                        key={e}
+                        onClick={() => setEmotion(e)}
+                        style={{
+                          fontSize: "20px",
+                          background: emotion === e ? "#ddd" : "white",
+                          borderRadius: "5px",
+                        }}
+                      >
+                        {e}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div style={{ marginTop: "10px" }}>
+                  <strong>comment</strong>
+                  <textarea
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    rows={3}
+                    style={{ width: "100%", marginTop: "5px" }}
+                  />
+                </div>
+
+                <button
+                  onClick={saveStatus}
+                  style={{
+                    marginTop: "10px",
+                    width: "100%",
+                    padding: "5px",
+                    background: "#4caf50",
+                    color: "white",
+                    borderRadius: "5px",
+                  }}
+                >
+                  保存
+                </button>
+              </div>
+            )}
           </Popup>
         </Marker>
       </MapContainer>
