@@ -1,6 +1,8 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useUser } from "../UserContext";
+import { RegisterFamily } from "./RegisterFamily";
+import { use } from "react";
 
 export const Mypage = () => {
   // セッションのユーザー情報の取得
@@ -14,6 +16,8 @@ export const Mypage = () => {
   const [loading, setLoading] = useState(false);
   const API_KEY = import.meta.env.VITE_API_KEY;
 
+  const [searchWord, setSearchword] = useState("");
+
   const handleSubmit = async (imageUrl) => {
     try {
       let myHomePosition = null;
@@ -21,19 +25,26 @@ export const Mypage = () => {
         const response = await axios.get(
           `https://msearch.gsi.go.jp/address-search/AddressSearch?q=${newMyHome}`,
         );
+        // 住所が見つからない場合のエラーハンドリング
+        if (!response.data || response.data.length === 0) {
+          alert("住所が見つかりませんでした");
+          return;
+        }
         myHomePosition = response.data[0].geometry.coordinates;
       }
-      const payload = {
-        name: newName,
-        password: newPassword,
-        myHome: myHomePosition,
-        image_url: imageUrl,
-      };
+      //  変更内容だけをpayloadに入れたい
+      const payload = {};
+      if (newName) payload.name = newName;
+      if (newPassword) payload.password = newPassword;
+      if (myHomePosition) payload.myHome = myHomePosition;
+      if (imageUrl) payload.image_url = imageUrl;
       console.log("payloadは", payload);
+
       if (Object.keys(payload).length > 0) {
         const response = await axios.patch("/api/myPage", payload);
-        console.log(response.data.message);
         alert(response.data.message);
+      } else {
+        alert("変更内容がありません");
       }
     } catch (error) {
       console.error("エラー内容", error);
@@ -41,16 +52,26 @@ export const Mypage = () => {
     }
   };
 
+  // 既存の登録情報を参照
   useEffect(() => {
     fetch(`/api/mypage/${user.id}`)
       .then((res) => res.json())
-      .then((data) => setMyInfo(data[0]));
+      .then((data) => {
+        console.log("myInfoの中身:", data[0]);
+        setMyInfo(data[0]);
+      });
   }, []);
 
+  // 新規アイコン画像の登録(imageBBへのアップロード)
   const handleUpload = async () => {
+    if (!newIcon) {
+      await handleSubmit(null);
+      return;
+    }
     setLoading(true);
     const formData = new FormData();
     formData.append("image", newIcon);
+    console.log("imageBBへのアップロード", formData);
     try {
       const response = await fetch(
         `https://api.imgbb.com/1/upload?key=${API_KEY}`,
@@ -104,7 +125,14 @@ export const Mypage = () => {
           onChange={(e) => setNewMyHome(e.target.value)}
         />
       </div>
-      <button onClick={handleUpload}>変更を保存</button>
+      <button onClick={handleUpload} disabled={loading}>
+        {loading ? "保存中・・・" : "変更を保存"}
+      </button>
+      {myInfo.admin === 1 ? (
+        <RegisterFamily searchWord={searchWord} setSearchWord={setSearchword} />
+      ) : (
+        <div></div>
+      )}
     </>
   );
 };

@@ -154,6 +154,13 @@ app.post("/api/register", async (req, res) => {
   });
 });
 
+// ユーザー検索機能(family登録用)
+app.get("/api/register/:name", async (req, res) => {
+  const name = req.params.name;
+  const result = await knex("users").where({ name: name }).select("*");
+  res.send(result);
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
