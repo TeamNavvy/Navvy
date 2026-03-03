@@ -93,6 +93,41 @@ export const Home = () => {
   //     .then((data) => console.log(data, "******"));
   // }, []);
 
+  // user_status管理
+  const [emotion, setEmotion] = useState("😃");
+  const [comment, setComment] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  // user_status取得
+  const fetchStatus = async () => {
+    try {
+      const res = await axios.get(`/api/status/${user.id}`);
+      if (res.data) {
+        setEmotion(res.data.emotion || "😃");
+        setComment(res.data.comment || "");
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 保存処理
+  const saveStatus = async () => {
+    try {
+      await axios.post("/api/status", {
+        userId: user.id,
+        emotion,
+        comment,
+      });
+      alert("保存しました！");
+    } catch (err) {
+      console.error(err);
+      alert("保存に失敗しました");
+    }
+  };
+
   return (
     <>
       <h1>地図表記デモ</h1>
