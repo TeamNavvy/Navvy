@@ -30,9 +30,21 @@ export const RegisterFamily = (props) => {
     try {
       await axios.post(`/api/family/register/${targetName}`);
       handleGetFamily();
+      setSearchWord("");
+      setSearchResult([]);
     } catch (error) {
       console.error("登録エラー", error);
       alert("family登録に失敗");
+    }
+  };
+
+  const handleDeleteFamily = async (targetId) => {
+    try {
+      await axios.delete(`/api/family/${targetId}`);
+      handleGetFamily();
+    } catch (error) {
+      console.error("削除エラー", error);
+      alert("family削除に失敗");
     }
   };
 
@@ -45,17 +57,26 @@ export const RegisterFamily = (props) => {
       <h2>ファミリー登録</h2>
       <div>
         ファミリーメンバー
-        {family.map((member) => (
-          <div key={member.id}>
-            {member.image_url && (
-              <img src={member.image_url} alt={member.name} width={50} />
-            )}
-            <span>{member.name}</span>
-          </div>
-        ))}
+        {family.length === 0 ? (
+          <p>familyの登録がありません</p>
+        ) : (
+          family.map((member) => (
+            <div key={member.id}>
+              {member.image_url && (
+                <img src={member.image_url} alt={member.name} width={50} />
+              )}
+              <span>{member.name}</span>
+              <button onClick={() => handleDeleteFamily(member.id)}>
+                {" "}
+                ✕解除
+              </button>
+            </div>
+          ))
+        )}
       </div>
       <input
         placeholder="search"
+        value={searchWord}
         onChange={(e) => setSearchWord(e.target.value)}
       />
       <button onClick={handleSearch}>検索</button>
