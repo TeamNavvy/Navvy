@@ -18,7 +18,7 @@ export const Home = () => {
   const navigate = useNavigate();
   const positionRef = useRef(null);
 
-  const [stayStartTime, setStayStartTime] = useState(new Date()); // 自分の滞在開始時刻
+  const [stayStartTime, setStayStartTime] = useState(); // 自分の滞在開始時刻
   const [stayMinutes, setStayMinutes] = useState(0); // 自分の滞在分
   const [familyMembers, setFamilyMembers] = useState([]); // 家族の位置・滞在データ
 
@@ -32,6 +32,20 @@ export const Home = () => {
     );
   };
 
+  // DBから滞在開始時間の取得
+  const fetchMyPositionStatus = async () => {
+    try {
+      const res = await axios.get(`/api/history/${user.id}`);
+      const lastData = res.data[0];
+      if (lastData && lastData.stay_start_time) {
+        return new Date(lastData.stay_start_time);
+      }
+    } catch (err) {
+      console.error("ステータス取得失敗:", err);
+    }
+    return new Date();
+  };
+
   // 家族の位置情報取得
   // const fetchFamilyPositions = async () => {
   //   try {
@@ -43,7 +57,7 @@ export const Home = () => {
   // };
 
   //現在地DB保存
-  const postPosition = async (currentPosition) => {
+  const postPosition = async (currentPosition, startTime) => {
     if (!currentPosition) {
       return;
     }
@@ -52,7 +66,7 @@ export const Home = () => {
         latitude: currentPosition.latitude,
         longitude: currentPosition.longitude,
         user,
-        // stayStartTime: stayStartTime
+        // stay_start_time: startTime
       });
     } catch (err) {
       console.error(err);
@@ -72,13 +86,15 @@ export const Home = () => {
   };
 
   //初回の処理用
-  const first = () => {
+  const first = async () => {
+    const lastStartTime = await fetchMyPositionStatus();
+
     navigator.geolocation.getCurrentPosition((position) => {
       const result = position.coords;
       setCurrentPosition(result);
       positionRef.current = result;
-      setStayStartTime(new Date());
-      postPosition(result);
+      setStayStartTime(lastStartTime);
+      postPosition(result, lastStartTime);
       // fetchFamilyPositions();
     });
   };
@@ -123,7 +139,7 @@ export const Home = () => {
     <>
       <h1>地図表記デモ</h1>
       <button onClick={() => navigate("/myPage")}>マイページ</button>
-      <p>{stayMinutes}</p>
+      <p>私の滞在時間：{stayMinutes}</p>
       <MapContainer center={position} zoom={zoom}>
         <TileLayer
           attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
