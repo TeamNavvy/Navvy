@@ -18,24 +18,28 @@ export const Home = () => {
   let navigate = useNavigate();
   const positionRef = useRef(null);
 
+  const [stayStartTime, setStayStartTime] = useState(new Date()); // 自分の滞在開始時刻
+  const [stayMinutes, setStayMinutes] = useState(0); // 自分の滞在分
+  const [familyMembers, setFamilyMembers] = useState([]); // 家族の位置・滞在データ
+
   //現在地DB保存
   const postPosition = async (currentPosition) => {
     if (!currentPosition) {
-      console.log("ここcurrentPosition:", currentPosition);
+      // console.log("ここcurrentPosition:", currentPosition);
       return;
     }
-    console.log("ログインユーザ情報：", user);
-    console.log("currentPosition:", currentPosition);
+    // console.log("ログインユーザ情報：", user);
+    // console.log("currentPosition:", currentPosition);
     try {
       const res = await axios.post("/api/home", {
         latitude: currentPosition.latitude,
         longitude: currentPosition.longitude,
         user,
       });
-      console.log("位置保存成功");
+      // console.log("位置保存成功");
     } catch (err) {
       console.error(err);
-      console.log("現在地が保存できません");
+      // console.log("現在地が保存できません");
     }
   };
 
