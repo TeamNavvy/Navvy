@@ -204,7 +204,6 @@ export const Home = () => {
   const getMyIconURL = async () => {
     try {
       const res = await axios.get(`/api/icon/${user.id}`);
-      console.log(res.data.image_url);
       if (res.data) {
         setmyIconURL(res.data.image_url);
       }
@@ -223,7 +222,6 @@ export const Home = () => {
     fetch(`/api/mypage/${user.id}`)
       .then((res) => res.json())
       .then((data) => {
-        console.log("myInfoの中身:", data[0]);
         setMyInfo(data[0]);
       });
   }, []);
@@ -299,11 +297,11 @@ export const Home = () => {
   return (
     <HeaderLayout>
       {myInfo.admin === 1 ? (
-              <button onClick={() => navigate("/footPrint")}>足あとを見る</button>
-            ) : (
-              <div></div>
-            )}
-      
+        <button onClick={() => navigate("/footPrint")}>足あとを見る</button>
+      ) : (
+        <div></div>
+      )}
+
       <h1>地図表記デモ</h1>
       <p>私の滞在時間：{stayMinutes}</p>
       <MapContainer center={position} zoom={zoom} key={position}>
