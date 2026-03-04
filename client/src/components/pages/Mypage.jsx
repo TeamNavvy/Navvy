@@ -14,7 +14,15 @@ import {
   Heading,
   Card,
   Text,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalCloseButton,
+  useDisclosure,
 } from "@chakra-ui/react";
+
 import { HeaderLayout } from "../templates/HeaderLayout";
 
 export const Mypage = () => {
@@ -31,6 +39,10 @@ export const Mypage = () => {
 
   const [searchWord, setSearchword] = useState("");
 
+  // モーダル用ステート
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [modalMessage, setModalMessage] = useState("");
+
   const handleSubmit = async (imageUrl) => {
     try {
       let myHomePosition = null;
@@ -40,7 +52,9 @@ export const Mypage = () => {
         );
         // 住所が見つからない場合のエラーハンドリング
         if (!response.data || response.data.length === 0) {
-          alert("住所が見つかりませんでした");
+          setModalMessage("住所が見つかりませんでした");
+          onOpen();
+          setTimeout(onClose, 3000);
           return;
         }
         myHomePosition = response.data[0].geometry.coordinates;
@@ -53,8 +67,11 @@ export const Mypage = () => {
       if (imageUrl) payload.image_url = imageUrl;
       console.log("payloadは", payload);
 
+      let timer;
       if (Object.keys(payload).length > 0) {
         const response = await axios.patch("/api/myPage", payload);
+        console.log("PATCH 成功レスポンス:", response.data);
+
         setMyInfo((prev) => ({
           ...prev,
           ...(newName && { name: newName }),
@@ -63,13 +80,20 @@ export const Mypage = () => {
         setNewName("");
         setNewPassword("");
         setNewMyHome("");
-        alert(response.data.message);
+        if (timer) clearTimeout(timer);
+        setModalMessage(response.data.message);
+        onOpen();
+        timer = setTimeout(onClose, 3000);
       } else {
-        alert("変更内容がありません");
+        setModalMessage("変更内容がありません");
+        onOpen();
+        setTimeout(onClose, 3000);
       }
     } catch (error) {
       console.error("エラー内容", error);
-      alert("更新に失敗");
+      setModalMessage("更新に失敗");
+      onOpen();
+      setTimeout(onClose, 3000);
     }
   };
 
@@ -105,11 +129,15 @@ export const Mypage = () => {
       if (data.success) {
         await handleSubmit(data.data.url);
       } else {
-        alert("画像のアップロードに失敗しました");
+        setModalMessage("画像のアップロードに失敗しました");
+        onOpen();
+        setTimeout(onClose, 3000);
       }
     } catch (error) {
       console.log("アップロードに失敗", error);
-      alert("通信エラーが発生しました");
+      setModalMessage("通信エラーが発生しました");
+      onOpen();
+      setTimeout(onClose, 3000);
     } finally {
       setLoading(false);
     }
@@ -168,6 +196,15 @@ export const Mypage = () => {
       ) : (
         <div></div>
       )}
+      <Modal isOpen={isOpen} onClose={onClose} isCentered>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalCloseButton />
+          <ModalBody>
+            <Text>{modalMessage}</Text>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </HeaderLayout>
   );
 };
