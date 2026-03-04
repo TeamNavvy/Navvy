@@ -132,7 +132,33 @@ export const Home = () => {
   const fetchFamilyPositions = async () => {
     try {
       const res = await axios.get(`/api/family-positions/${user.id}`);
-      setFamilyMembers(res.data);
+      const data = res.data;
+      try {
+        const promises = data.map(async (member) =>
+          axios.get(`/api/history/${member.user_id}`),
+        );
+        const result = await Promise.all(promises);
+        const details = result.map((res) => res.data);
+
+        const mergedMembers = data.map((member) => {
+          // IDが一致する滞在詳細を探す
+          const stayDetail = details.find((d) => d.user_id === member.user_id);
+
+          let stayMinutes = 0;
+          if (stayDetail && stayDetail.stay_start_time) {
+            const start = new Date(stayDetail.stay_start_time);
+            stayMinutes = Math.floor((new Date() - start) / 60000);
+          }
+          // 基本情報に滞在時間を追加して返す
+          return {
+            ...member,
+            stayMinutes: stayMinutes > 0 ? stayMinutes : 0,
+          };
+        });
+        setFamilyMembers(mergedMembers);
+      } catch (err) {
+        console.error("家族データの滞在時間一括取得失敗:", err);
+      }
     } catch (err) {
       console.error("家族データ取得失敗:", err);
     }
@@ -204,7 +230,6 @@ export const Home = () => {
   const getMyIconURL = async () => {
     try {
       const res = await axios.get(`/api/icon/${user.id}`);
-      console.log(res.data.image_url);
       if (res.data) {
         setmyIconURL(res.data.image_url);
       }
@@ -223,7 +248,6 @@ export const Home = () => {
     fetch(`/api/mypage/${user.id}`)
       .then((res) => res.json())
       .then((data) => {
-        console.log("myInfoの中身:", data[0]);
         setMyInfo(data[0]);
       });
   }, []);
@@ -274,46 +298,78 @@ export const Home = () => {
     }
   };
 
-  const pinWithEmoji = L.divIcon({
+  const pinWithEmoji = (iconUrl) => 
+    L.divIcon({
     html: `
     <div style="
       display: flex;
       align-items: center;
+      white-space: nowrap; 
     "> 
       <img
-        src="${myIconURL}"
-        style="width: 25px; height: 41px;"
+        src="${iconUrl}"
+        style="width: 55px; height: 55px; object-fit: cover;  border-radius: 50%; "
       />
-      <span style="font-size: 22px; margin-left: 4px;">
+      <span style="font-size: 22px;  margin-left: 4px;">
         ${status}
+      </span>
+      <span style="font-size: 18px; margin-left: 4px;">
+        ${stayMinutes}分
       </span>
     </div>
   `,
     className: "",
     iconSize: null,
-    iconAnchor: [12, 41], // ← ピンの先端をmarkerPositionに完全固定25×41のため
+    iconAnchor: [20,40],
   });
 
-  const markerPosition2 = [35.65858, 139.74543];
+  const familyPin = (iconUrl, status, minutes) =>
+    L.divIcon({
+      html: `
+      <div style="
+        display: flex;
+        align-items: center;
+        white-space: nowrap;
+      ">
+        <img
+          src="${iconUrl}"
+          style="width: 40px; height: 40px; object-fit: cover;  border-radius: 50%;"
+        />
+        <span style="font-size: 22px; margin-left: 4px;">
+          ${status}
+        </span>
+        <span style="font-size: 18px; margin-left: 4px;">
+          ${minutes}分
+        </span>
+      </div>
+    `,
+      className: "",
+      iconSize: null,
+      iconAnchor: [20, 40],
+    });
+
+//   const createFamilyIcon = (member) => {
+//   return L.icon({
+//     iconUrl: member.image_url || "/pinicon.png", 
+//     iconSize: [50, 50],
+//     iconAnchor: [25, 50],
+//     popupAnchor: [0, -50],
+//   });
+// };
 
   return (
-    <HeaderLayout>
-      {myInfo.admin === 1 ? (
-              <button onClick={() => navigate("/footPrint")}>足あとを見る</button>
-            ) : (
-              <div></div>
-            )}
-      
-      <h1>地図表記デモ</h1>
-      <p>私の滞在時間：{stayMinutes}</p>
-      <MapContainer center={position} zoom={zoom} key={position}>
+    <HeaderLayout
+     familyMembers={familyMembers}
+     myInfo={myInfo}>
+     
+      <MapContainer center={position} zoom={zoom}>
         <TileLayer
           attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <Marker
           position={markerPosition}
-          icon={pinWithEmoji}
+          icon={pinWithEmoji(myIconURL || "/pinicon.png")}
           eventHandlers={{
             click: () => {
               setLoading(true);
@@ -342,6 +398,12 @@ export const Home = () => {
           <Marker
             key={member.user_id}
             position={[member.latitude, member.longitude]}
+            // icon={createFamilyIcon(member)}
+            icon={familyPin(
+              member.image_url || "/pinicon.png",
+              member.status || "",
+              member.stayMinutes,
+            )}
           >
             {member.comment && (
               <Tooltip permanent direction="top" offset={[0, -45]}>
