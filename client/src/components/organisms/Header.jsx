@@ -5,6 +5,7 @@ import { Box, Heading, Flex, Tooltip, Text } from "@chakra-ui/react";
 import { PrimaryButton } from "../atoms/PrimaryButton";
 import { VscAccount } from "react-icons/vsc";
 import { CiMail } from "react-icons/ci";
+import { IoFootsteps } from "react-icons/io5";
 
 export const Header = () => {
   const { user, setUser } = useUser();
@@ -16,6 +17,10 @@ export const Header = () => {
 
   const onClickToHome = () => {
     navigate("/home");
+  };
+
+  const onClickToFootPrint = () => {
+    navigate("/footPrint");
   };
 
   const handleLogout = async () => {
@@ -66,6 +71,16 @@ export const Header = () => {
             transition="all 0.2s"
           >
             <CiMail size={28} />
+          </Box>
+        </Tooltip>
+        <Tooltip ml="20" label="足あと" placement="bottom">
+          <Box
+            cursor="pointer"
+            onClick={onClickToFootPrint}
+            _hover={{ opacity: 0.8, transform: "scale(1.05)" }}
+            transition="all 0.2s"
+          >
+            <IoFootsteps size={28} />
           </Box>
         </Tooltip>
         <PrimaryButton size="sm" onClick={handleLogout}>

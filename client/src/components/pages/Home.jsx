@@ -303,6 +303,7 @@ export const Home = () => {
     <div style="
       display: flex;
       align-items: center;
+      white-space: nowrap; 
     "> 
       <img
         src="${myIconURL}"
@@ -311,12 +312,40 @@ export const Home = () => {
       <span style="font-size: 22px; margin-left: 4px;">
         ${status}
       </span>
+      <span style="font-size: 18px; margin-left: 4px;">
+        ${stayMinutes}分
+      </span>
     </div>
   `,
     className: "",
     iconSize: null,
-    iconAnchor: [12, 41], // ← ピンの先端をmarkerPositionに完全固定25×41のため
+    iconAnchor: [12, 41],
   });
+
+  const familyPin = (iconUrl, status, minutes) =>
+    L.divIcon({
+      html: `
+      <div style="
+        display: flex;
+        align-items: center;
+        white-space: nowrap;
+      ">
+        <img
+          src="${iconUrl}"
+          style="width: 25px; height: 41px;"
+        />
+        <span style="font-size: 22px; margin-left: 4px;">
+          ${status}
+        </span>
+        <span style="font-size: 18px; margin-left: 4px;">
+          ${minutes}分
+        </span>
+      </div>
+    `,
+      className: "",
+      iconSize: null,
+      iconAnchor: [12, 41],
+    });
 
   return (
     <HeaderLayout>
@@ -367,8 +396,12 @@ export const Home = () => {
         </Marker>
         {familyMembers.map((member) => (
           <Marker
-            key={member.user_id}
             position={[member.latitude, member.longitude]}
+            icon={familyPin(
+              member.image_url,
+              member.status,
+              member.stayMinutes,
+            )}
           >
             {member.comment && (
               <Tooltip permanent direction="top" offset={[0, -45]}>
