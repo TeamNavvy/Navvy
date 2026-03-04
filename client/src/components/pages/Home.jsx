@@ -322,6 +322,31 @@ export const Home = () => {
     iconAnchor: [12, 41],
   });
 
+  const familyPin = (iconUrl, status, minutes) =>
+    L.divIcon({
+      html: `
+      <div style="
+        display: flex;
+        align-items: center;
+        white-space: nowrap;
+      ">
+        <img
+          src="${iconUrl}"
+          style="width: 25px; height: 41px;"
+        />
+        <span style="font-size: 22px; margin-left: 4px;">
+          ${status}
+        </span>
+        <span style="font-size: 18px; margin-left: 4px;">
+          ${minutes}分
+        </span>
+      </div>
+    `,
+      className: "",
+      iconSize: null,
+      iconAnchor: [12, 41],
+    });
+
   return (
     <HeaderLayout>
       {myInfo.admin === 1 ? (
@@ -369,10 +394,10 @@ export const Home = () => {
             )}
           </Popup>
         </Marker>
-        {familyMembers.map((member) => (
+        {/* {familyMembers.map((member) => (
           <Marker
-            key={member.user_id}
             position={[member.latitude, member.longitude]}
+            icon={familyPin(member.image_url, member.status, stayMinutes)}
           >
             {member.comment && (
               <Tooltip permanent direction="top" offset={[0, -45]}>
@@ -380,7 +405,7 @@ export const Home = () => {
               </Tooltip>
             )}
           </Marker>
-        ))}
+        ))} */}
       </MapContainer>
     </HeaderLayout>
   );
