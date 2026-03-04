@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Box, Heading, Flex, Tooltip, Text } from "@chakra-ui/react";
 import { PrimaryButton } from "../atoms/PrimaryButton";
 import { VscAccount } from "react-icons/vsc";
+import { CiMail } from "react-icons/ci";
 
 export const Header = () => {
   const { user, setUser } = useUser();
@@ -55,6 +56,16 @@ export const Header = () => {
             transition="all 0.2s"
           >
             <VscAccount size={28} />
+          </Box>
+        </Tooltip>
+        <Tooltip ml="20" label="メールBOX" placement="bottom">
+          <Box
+            cursor="pointer"
+            onClick={onClickToMyPage}
+            _hover={{ opacity: 0.8, transform: "scale(1.05)" }}
+            transition="all 0.2s"
+          >
+            <CiMail size={28} />
           </Box>
         </Tooltip>
         <PrimaryButton size="sm" onClick={handleLogout}>
