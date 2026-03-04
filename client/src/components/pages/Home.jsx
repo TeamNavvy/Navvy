@@ -25,7 +25,7 @@ export const Home = () => {
   // 移動したのかの判定
   const hasMoved = (p1, p2) => {
     if (!p1 || !p2) return false;
-    const threshold = 0.0004; // 約10〜15mの誤差許容
+    const threshold = 0.0004; // 誤差許容
     return (
       Math.abs(p1.latitude - p2.latitude) > threshold ||
       Math.abs(p1.longitude - p2.longitude) > threshold
@@ -50,8 +50,7 @@ export const Home = () => {
   const fetchFamilyPositions = async () => {
     try {
       const res = await axios.get(`/api/family-positions/${user.id}`);
-      // setFamilyMembers(res.data);
-      console.log(res.data, "*******");
+      setFamilyMembers(res.data);
     } catch (err) {
       console.error("家族データ取得失敗:", err);
     }
@@ -118,7 +117,7 @@ export const Home = () => {
       postPosition(positionRef.current, stayStartTime);
     }, 20000);
     // 30秒ごとに家族の位置情報取得
-    // const familyInterval = setInterval(fetchFamilyPositions, 30000);
+    const familyInterval = setInterval(fetchFamilyPositions, 30000);
     // 滞在時間表示用
     const timerInterval = setInterval(() => {
       const diff = Math.floor((new Date() - stayStartTime) / 60000);
@@ -127,7 +126,7 @@ export const Home = () => {
     return () => {
       clearInterval(posInterval);
       clearInterval(saveInterval);
-      // clearInterval(familyInterval);
+      clearInterval(familyInterval);
       clearInterval(timerInterval);
     };
   }, [stayStartTime]);
