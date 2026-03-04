@@ -94,8 +94,9 @@ export const Home = () => {
   const { user, setUser } = useUser();
   //現在地用
   const [currentPosition, setCurrentPosition] = useState();
-  //ログインユーザのアイコンURL
+  //ログインユーザ情報
   const [myIconURL, setmyIconURL] = useState("");
+  const [myInfo, setMyInfo] = useState([]);
   const navigate = useNavigate();
   const positionRef = useRef(null);
 
@@ -189,7 +190,7 @@ export const Home = () => {
     try {
       const res = await axios.get(`/api/status/${user.id}`);
       if (res.data) {
-        setStatus(res.data.status || "");
+        setStatus(res.data.status || "🏠");
         setComment(res.data.comment || "");
       }
     } catch (err) {
@@ -212,13 +213,19 @@ export const Home = () => {
     }
   };
 
-  // 初回、30秒ごとに位置情報取得して保存
   useEffect(() => {
     //初回位置情報取得＆保存
     first();
     //statusも読み込む
     fetchStatus();
+    // 既存の登録情報を参照
     getMyIconURL(user.id);
+    fetch(`/api/mypage/${user.id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("myInfoの中身:", data[0]);
+        setMyInfo(data[0]);
+      });
   }, []);
 
   useEffect(() => {
@@ -289,7 +296,13 @@ export const Home = () => {
 
   return (
     <HeaderLayout>
-      <h1>現在地ビュー</h1>
+      {myInfo.admin === 1 ? (
+        <button onClick={() => navigate("/footPrint")}>足あとを見る</button>
+      ) : (
+        <div></div>
+      )}
+
+      <h1>地図表記デモ</h1>
       <p>私の滞在時間：{stayMinutes}</p>
       <MapContainer center={position} zoom={zoom}>
         <TileLayer
@@ -323,6 +336,18 @@ export const Home = () => {
             )}
           </Popup>
         </Marker>
+        {familyMembers.map((member) => (
+          <Marker
+            key={member.user_id}
+            position={[member.latitude, member.longitude]}
+          >
+            {member.comment && (
+              <Tooltip permanent direction="top" offset={[0, -45]}>
+                {member.comment}
+              </Tooltip>
+            )}
+          </Marker>
+        ))}
       </MapContainer>
     </HeaderLayout>
   );

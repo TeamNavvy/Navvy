@@ -17,13 +17,13 @@ import {
   Modal,
   ModalOverlay,
   ModalContent,
-  ModalHeader,
   ModalBody,
   ModalCloseButton,
   useDisclosure,
 } from "@chakra-ui/react";
 
 import { HeaderLayout } from "../templates/HeaderLayout";
+import { useMessage } from "../../hooks/useMessage";
 
 export const Mypage = () => {
   // セッションのユーザー情報の取得
@@ -40,8 +40,10 @@ export const Mypage = () => {
   const [searchWord, setSearchword] = useState("");
 
   // モーダル用ステート
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const [modalMessage, setModalMessage] = useState("");
+  // const { isOpen, onOpen, onClose } = useDisclosure();
+  // const [modalMessage, setModalMessage] = useState("");
+
+  const { showMessage } = useMessage();
 
   const handleSubmit = async (imageUrl) => {
     try {
@@ -52,9 +54,7 @@ export const Mypage = () => {
         );
         // 住所が見つからない場合のエラーハンドリング
         if (!response.data || response.data.length === 0) {
-          setModalMessage("住所が見つかりませんでした");
-          onOpen();
-          setTimeout(onClose, 3000);
+          showMessage({ title: "住所が見つかりませんでした", status: "error" });
           return;
         }
         myHomePosition = response.data[0].geometry.coordinates;
@@ -80,20 +80,13 @@ export const Mypage = () => {
         setNewName("");
         setNewPassword("");
         setNewMyHome("");
-        if (timer) clearTimeout(timer);
-        setModalMessage(response.data.message);
-        onOpen();
-        timer = setTimeout(onClose, 3000);
+        showMessage({ title: response.data.message, status: "success" });
       } else {
-        setModalMessage("変更内容がありません");
-        onOpen();
-        setTimeout(onClose, 3000);
+        showMessage({ title: "変更内容がありません", status: "error" });
       }
     } catch (error) {
       console.error("エラー内容", error);
-      setModalMessage("更新に失敗");
-      onOpen();
-      setTimeout(onClose, 3000);
+      showMessage({ title: "更新に失敗", status: "error" });
     }
   };
 
@@ -129,15 +122,17 @@ export const Mypage = () => {
       if (data.success) {
         await handleSubmit(data.data.url);
       } else {
-        setModalMessage("画像のアップロードに失敗しました");
-        onOpen();
-        setTimeout(onClose, 3000);
+        showMessage({
+          title: "画像のアップロードに失敗しました",
+          status: "error",
+        });
       }
     } catch (error) {
       console.log("アップロードに失敗", error);
-      setModalMessage("通信エラーが発生しました");
-      onOpen();
-      setTimeout(onClose, 3000);
+      showMessage({
+        title: "通信エラーが発生しました",
+        status: "error",
+      });
     } finally {
       setLoading(false);
     }
@@ -158,8 +153,6 @@ export const Mypage = () => {
         <Divider />
 
         <CardBody>
-          {myInfo.image_url && <img src={myInfo.image_url} />}
-
           <FormField label="ユーザー名の変更">
             <PrimaryInput
               value={newName}
@@ -196,15 +189,6 @@ export const Mypage = () => {
       ) : (
         <div></div>
       )}
-      <Modal isOpen={isOpen} onClose={onClose} isCentered>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalCloseButton />
-          <ModalBody>
-            <Text>{modalMessage}</Text>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
     </HeaderLayout>
   );
 };

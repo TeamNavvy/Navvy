@@ -279,7 +279,7 @@ app.get("/api/icon/:userId", async (req, res) => {
   const { userId } = req.params;
   try {
     const result = await knex("users").where("id", userId).select("image_url");
-    console.log("iconurl", result);
+    // console.log("iconurl", result);
     res.json(result[0]);
   } catch (err) {
     console.error(err);
@@ -303,14 +303,17 @@ app.get("/api/history/:id", async (req, res) => {
 app.get("/api/family-positions/:id", async (req, res) => {
   const id = Number(req.params.id);
   const familyPos = await knex("family")
-    .join("history", "family.family_id", "history.user_id")
     .where("family.user_id", id)
+    .join("history", "family.family_id", "history.user_id")
+    .leftJoin("user_status", "family.family_id", "user_status.user_id")
     .distinctOn("history.user_id") // ユーザーごとに重複を排除
     .select(
       "history.user_id",
       "history.latitude",
       "history.longitude",
       "history.created_at",
+      "user_status.status",
+      "user_status.comment",
     )
     .orderBy([
       { column: "history.user_id" },
