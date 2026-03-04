@@ -73,10 +73,11 @@ app.post("/api/logout", (req, res) => {
 app.post("/api/home", async (req, res) => {
   const { latitude, longitude, user } = req.body;
   // console.log("latitude:", latitude);
+  // console.log("latitude:", latitude);
   // const longitude = req.body.currentPosition.longitude;
 
   const [location] = await knex("history")
-    .insert({ user_id: 3, latitude, longitude })
+    .insert({ user_id: user.id, latitude, longitude })
     .returning("*");
 
   res.json(location);
@@ -237,6 +238,53 @@ app.post("/api/status", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "status更新エラー" });
+  }
+});
+
+// 家族取得
+app.get("/api/family/:userId", async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const family = await knex("family")
+      .leftJoin("users", "family.family_id", "users.id")
+      .select("users.id", "users.name")
+      .where("family.user_id", userId);
+
+    res.json(family);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "家族取得失敗" });
+  }
+});
+
+//選択された家族の今日の足あと取得（全件取得）
+app.get("/api/history/today/:userId", async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const history = await knex("history")
+      .select("*")
+      .where("user_id", userId)
+      .andWhere("created_at", ">=", knex.raw("CURRENT_DATE"))
+      .orderBy("created_at", "desc");
+
+    res.json(history);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "履歴取得エラー" });
+  }
+});
+
+// ログインユーザアイコンURL取得
+app.get("/api/icon/:userId", async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const result = await knex("users").where("id", userId).select("image_url");
+    console.log("iconurl", result);
+    res.json(result[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "iconURL取得エラー" });
   }
 });
 
