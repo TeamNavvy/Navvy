@@ -5,6 +5,8 @@ const crypto = require("crypto");
 const knex = require("./db/knex");
 const app = express();
 const PORT = process.env.PORT || 3000;
+const distance = require("@turf/distance");
+const { point } = reaquire("@turf/helpers");
 
 // セッションの設定
 app.use(
@@ -69,17 +71,94 @@ app.post("/api/logout", (req, res) => {
   });
 });
 
-// 現在地をhistoryTBに格納;
+// １現在地をhistoryTBに格納　＆　２自宅に登録しているかどうかの判断;
 app.post("/api/home", async (req, res) => {
   const { latitude, longitude, user, stay_start_time } = req.body;
   //   console.log("latitude:", latitude);
   // const longitude = req.body.currentPosition.longitude;
 
+  // historyテーブルに現在地を保存
   const [location] = await knex("history")
     .insert({ user_id: user.id, latitude, longitude, stay_start_time })
     .returning("*");
 
+  // 自宅到着判定ロジック
+  // 自宅の座標取得
+  const myHome = await knex("home").where({ user_id: user.id }).first();
+  if (!myHome) return res.json(location); //自宅登録がなければ現在地を保存して終了
+
+  const threshold = 100; //100m以内で到着判定
+
+  // 現在の距離計算
+  const homePoint = point([myHome.latitude, myHome.longitude]);
+  const currentPoint = point([latitude, longitude]);
+  const currentDistance = distance(homePoint, currentPoint, {
+    units: "meters",
+  });
+  const isNowHome = currentDistance <= threshold; //現在自宅にいるかどうかの判定
+
+  // 直前のhistoryを取得
+  const prev = await knex("history")
+    .where({ user_id: user.id })
+    .whereNot({ id: location.id })
+    .orderBy("created_at", "desc")
+    .first();
+
+  if (!prev) return res.json(location);
+
+  // 直前の距離の計算
+  const prevPoint = point([prev.latitude, prev.longitude]);
+  const prevDistance = distance(homePoint, prevPoint, { units: "meters" });
+  // 自宅に直前までいたかどうかの判定
+  const wasHome = prevDistance <= threshold;
+
+  // 通知を受け取る人の設定
+  const receivers = await knex("family")
+    .where({ family_id: user.id })
+    .select("user_id");
+
+  if (!wasHome && isNowHome) {
+    // 直前まで外出→現在は自宅のパターン
+    for (const receiver of receivers) {
+      await knex("notifications").insert({
+        sender_id: user.id,
+        receiver_id: receiver.user_id,
+        type: "arrived_home",
+        occurred_at: knex.fn.now(),
+      });
+    }
+  } else if (wasHome && !isNowHome) {
+    // 直前まで自宅→現在は外出のパターン
+    for (const receiver of receivers) {
+      await knex("notifications").insert({
+        sender_id: user.id,
+        receiver_id: receiver.user_id,
+        type: "left_home",
+        occurred_at: knex.fn.now(),
+      });
+    }
+  }
+
   res.json(location);
+});
+
+// 通知一覧取得API（メッセージページ表示用）
+app.get("/api/notifications/:userId", async (req, res) => {
+  const receiver_id = Number(req.params.userId);
+
+  const notifications = await knex("notifications")
+    .join("users", "notifications.sender_id", "users.id")
+    .where({ receiver_id: receiver_id })
+    .select(
+      "notifications.id",
+      "notifications.occurred_at",
+      "notifications.type",
+      "users.name as sender_name",
+      "users.image_url as sender_image",
+    )
+    .orderBy("notifications.arrive_at", "desc");
+
+  res.json(notifications);
 });
 
 // マイページ変更機能
