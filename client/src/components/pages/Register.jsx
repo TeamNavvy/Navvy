@@ -73,7 +73,7 @@ export const Register = () => {
           disabled={
             form.userName === "" || form.password === "" || form.role === ""
           }
-          onclidk={handleRegister}
+          onclick={handleRegister}
         >
           登録
         </PrimaryButton>
