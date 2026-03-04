@@ -23,6 +23,8 @@ export const FootPrint = () => {
   //選択された家族の足あと履歴
   const [history, setHistory] = useState([]);
   const [center, setCenter] = useState(null);
+  //足あとがありかなしか判定
+  const [footExist, setfootExist] = useState(false);
    let navigate = useNavigate();
   
 
@@ -59,8 +61,10 @@ export const FootPrint = () => {
   setHistory(res.data);
 
   if (res.data.length > 0) {
+    setfootExist(true);
     setCenter([res.data[0].latitude, res.data[0].longitude]);
   } else {
+    setfootExist(false);
     setCenter([35.18, 136.9]);
   }
 
@@ -85,19 +89,22 @@ export const FootPrint = () => {
 
    return (
     <>
-    <h1>足あと表示ページ</h1>
+    <h1>今日の足あと</h1>
   
-          <button onClick={() => navigate("/home")}>ホームに戻る</button>
+        <button onClick={() => navigate("/home")}>ホームに戻るボタン</button>
 
           {/* 表示ユーザ選択プルダウン */}
           <FamilySelect
             familyArray={familyArray}
             onChangeFamily={handleFamilyChange}
           />
-          {/* keyがないとcenterが変わっても位置は変わらない。
-          keyがあることで、keyが更新されると別物のコンポーネントだと認識され、
-          新しいMapContainerが作成される（centerが反映される） */}
-          <MapContainer center={center} zoom={zoom} key={center}>
+
+
+          { footExist ? (
+            /* keyがないとcenterが変わっても位置は変わらない。
+              keyがあることで、keyが更新されると別物のコンポーネントだと認識され、
+              新しいMapContainerが作成される（centerが反映される） */
+             <MapContainer center={center} zoom={zoom} key={center}>
             <TileLayer
               attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -106,10 +113,11 @@ export const FootPrint = () => {
             <FootPrintMarker
               history={history}
             />
-            
-
           </MapContainer>
-        
+          
+          ) : (
+            <p>今日の足あとがありません</p>
+          )}
     </>
    )
 }
