@@ -1,12 +1,25 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useUser } from "../UserContext";
-import { RegisterFamily } from "./RegisterFamily";
-import { use } from "react";
+import { RegisterFamily } from "./registerFamily";
+import { PrimaryInput } from "../atoms/PrimaryInput";
+import { PrimaryButton } from "../atoms/PrimaryButton";
+import { FileInput } from "../atoms/FileInput";
+import { FormField } from "../molecules/FormFiels";
+import {
+  Avatar,
+  CardBody,
+  CardHeader,
+  Divider,
+  Heading,
+  Card,
+  Text,
+} from "@chakra-ui/react";
+import { HeaderLayout } from "../templates/HeaderLayout";
 
 export const Mypage = () => {
   // セッションのユーザー情報の取得
-  const { user, setUser } = useUser();
+  const { user } = useUser();
   const [newName, setNewName] = useState("");
   const [newIcon, setNewIcon] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -42,6 +55,14 @@ export const Mypage = () => {
 
       if (Object.keys(payload).length > 0) {
         const response = await axios.patch("/api/myPage", payload);
+        setMyInfo((prev) => ({
+          ...prev,
+          ...(newName && { name: newName }),
+          ...(imageUrl && { image_url: imageUrl }),
+        }));
+        setNewName("");
+        setNewPassword("");
+        setNewMyHome("");
         alert(response.data.message);
       } else {
         alert("変更内容がありません");
@@ -62,7 +83,7 @@ export const Mypage = () => {
       });
   }, []);
 
-  // 新規アイコン画像の登録(imageBBへのアップロード)
+  // アップロード
   const handleUpload = async () => {
     if (!newIcon) {
       await handleSubmit(null);
@@ -87,6 +108,7 @@ export const Mypage = () => {
         alert("画像のアップロードに失敗しました");
       }
     } catch (error) {
+      console.log("アップロードに失敗", error);
       alert("通信エラーが発生しました");
     } finally {
       setLoading(false);
@@ -94,40 +116,49 @@ export const Mypage = () => {
   };
 
   return (
-    <>
-      <h1>マイページ</h1>
-      {myInfo.image_url && <img src={myInfo.image_url} />}
+    <HeaderLayout>
+      <Heading size="4xl">My Page</Heading>
+      <Card maxW="xl" mx="auto" mt="10" mb="4" borderRadius="xl">
+        <CardHeader>
+          <Avatar size="xl" src={myInfo.image_url} />
+          <Heading size="md">{myInfo.name}</Heading>
+          <Text fontSize="sm" color="gray.500">
+            プロフィール設定
+          </Text>
+        </CardHeader>
 
-      <div>
-        ユーザー名の変更
-        <input value={newName} onChange={(e) => setNewName(e.target.value)} />
-      </div>
-      <div>
-        アイコンの変更
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => setNewIcon(e.target.files[0])}
-        />
-      </div>
-      <div>
-        パスワードの変更
-        <input
-          type="password"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-        />
-      </div>
-      <div>
-        自宅の登録・変更
-        <input
-          value={newMyHome}
-          onChange={(e) => setNewMyHome(e.target.value)}
-        />
-      </div>
-      <button onClick={handleUpload} disabled={loading}>
-        {loading ? "保存中・・・" : "変更を保存"}
-      </button>
+        <Divider />
+
+        <CardBody>
+          {myInfo.image_url && <img src={myInfo.image_url} />}
+
+          <FormField label="ユーザー名の変更">
+            <PrimaryInput
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+            />
+          </FormField>
+          <FormField label="アイコンの変更">
+            <FileInput type="file" accept="image/*" onChange={setNewIcon} />
+          </FormField>
+          <FormField label="パスワードの変更">
+            <PrimaryInput
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+            />
+          </FormField>
+          <FormField label="自宅の登録・変更 (○○県○○市○○1-1-1のように番地まで入力)">
+            <PrimaryInput
+              value={newMyHome}
+              onChange={(e) => setNewMyHome(e.target.value)}
+            />
+          </FormField>
+          <PrimaryButton mt="3" onClick={handleUpload} disabled={loading}>
+            {loading ? "保存中・・・" : "変更を保存"}
+          </PrimaryButton>
+        </CardBody>
+      </Card>
       {myInfo.admin === 1 ? (
         <RegisterFamily
           searchWord={searchWord}
@@ -137,6 +168,6 @@ export const Mypage = () => {
       ) : (
         <div></div>
       )}
-    </>
+    </HeaderLayout>
   );
 };

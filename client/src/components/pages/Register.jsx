@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { RadioButtonGroup } from "../molecules/RadioButtonGroup";
+import { Heading, VStack, Flex } from "@chakra-ui/react";
+import { PrimaryInput } from "../atoms/PrimaryInput";
+import { PrimaryButton } from "../atoms/PrimaryButton";
 
 export const Register = () => {
   const [form, setForm] = useState({ userName: "", password: "", role: "" });
@@ -37,38 +40,44 @@ export const Register = () => {
   };
 
   return (
-    <>
-      <h3>新規登録</h3>
-      <div>
-        <label>ユーザー名：</label>
-        <input
-          placeholder="ユーザー名"
-          onChange={(e) => setForm({ ...form, userName: e.target.value })}
-        />
-      </div>
-      <div>
-        <label>パスワード：</label>
-        <input
-          placeholder="password"
-          type="password"
-          onChange={(e) => setForm({ ...form, password: e.target.value })}
-        />
-      </div>
-      <div>
-        <RadioButtonGroup
-          options={options}
-          selectedOption={selectedOption}
-          onChange={handleOptionChange}
-        />
-      </div>
-      <button
-        disabled={
-          form.userName === "" || form.password === "" || form.role === ""
-        }
-        onClick={handleRegister}
+    <Flex minH="100vh" align="center" justify="center">
+      <VStack
+        spacing={6}
+        w="sm"
+        p={8}
+        bg="white"
+        borderRadius="xl"
+        boxShadow="md"
       >
-        登録
-      </button>
-    </>
+        <Heading>新規登録</Heading>
+        <VStack spacing={3}>
+          <PrimaryInput
+            placeholder="ユーザー名"
+            onChange={(e) => setForm({ ...form, userName: e.target.value })}
+          />
+          <PrimaryInput
+            placeholder="password"
+            type="password"
+            onChange={(e) => setForm({ ...form, password: e.target.value })}
+          />
+        </VStack>
+        <VStack>
+          <RadioButtonGroup
+            options={options}
+            selectedOption={selectedOption}
+            onChange={handleOptionChange}
+          />
+        </VStack>
+        <PrimaryButton
+          w="full"
+          disabled={
+            form.userName === "" || form.password === "" || form.role === ""
+          }
+          onclidk={handleRegister}
+        >
+          登録
+        </PrimaryButton>
+      </VStack>
+    </Flex>
   );
 };
