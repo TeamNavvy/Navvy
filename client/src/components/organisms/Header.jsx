@@ -6,7 +6,7 @@ import { PrimaryButton } from "../atoms/PrimaryButton";
 import { VscAccount } from "react-icons/vsc";
 import { CiMail } from "react-icons/ci";
 import { IoFootsteps } from "react-icons/io5";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect} from "react";
 
 export const Header = () => {
   const [myInfo, setMyInfo] = useState([]);

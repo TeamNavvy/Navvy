@@ -1,13 +1,10 @@
 import { Header } from "../organisms/header";
 
 export const HeaderLayout = (props) => {
-  const { children, familyMembers, myInfo } = props;
+  const { children } = props;
   return (
     <>
-      <Header
-       familyMembers={familyMembers}
-       myInfo={myInfo}
-        />
+      <Header/>
       {children}
     </>
   );
