@@ -6,7 +6,7 @@ const knex = require("./db/knex");
 const app = express();
 const PORT = process.env.PORT || 3000;
 const distance = require("@turf/distance");
-const { point } = reaquire("@turf/helpers");
+const { point } = require("@turf/helpers");
 
 // セッションの設定
 app.use(
