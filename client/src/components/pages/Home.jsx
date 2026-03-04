@@ -294,19 +294,17 @@ export const Home = () => {
     iconAnchor: [12, 41], // ← ピンの先端をmarkerPositionに完全固定25×41のため
   });
 
-  const markerPosition2 = [35.65858, 139.74543];
-
   return (
     <HeaderLayout>
       {myInfo.admin === 1 ? (
-              <button onClick={() => navigate("/footPrint")}>足あとを見る</button>
-            ) : (
-              <div></div>
-            )}
-      
+        <button onClick={() => navigate("/footPrint")}>足あとを見る</button>
+      ) : (
+        <div></div>
+      )}
+
       <h1>地図表記デモ</h1>
       <p>私の滞在時間：{stayMinutes}</p>
-      <MapContainer center={position} zoom={zoom} key={position}>
+      <MapContainer center={position} zoom={zoom}>
         <TileLayer
           attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
