@@ -30,7 +30,7 @@ export const Login = () => {
       setLoading(true);
       await axios.post("/api/login", form);
       await fetchUser();
-      alert("ログインしました");
+      // alert("ログインしました");
       nav(`/home`);
     } catch (error) {
       // サーバーからのエラーメッセージを参照
