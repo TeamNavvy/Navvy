@@ -306,6 +306,7 @@ app.get("/api/family-positions/:id", async (req, res) => {
     .where("family.user_id", id)
     .join("history", "family.family_id", "history.user_id")
     .leftJoin("user_status", "family.family_id", "user_status.user_id")
+    .leftJoin("users", "family.family_id", "users.id")
     .distinctOn("history.user_id") // ユーザーごとに重複を排除
     .select(
       "history.user_id",
@@ -314,6 +315,7 @@ app.get("/api/family-positions/:id", async (req, res) => {
       "history.created_at",
       "user_status.status",
       "user_status.comment",
+      "users.image_url",
     )
     .orderBy([
       { column: "history.user_id" },

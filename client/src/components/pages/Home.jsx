@@ -294,6 +294,15 @@ export const Home = () => {
     iconAnchor: [12, 41], // ← ピンの先端をmarkerPositionに完全固定25×41のため
   });
 
+  const createFamilyIcon = (member) => {
+  return L.icon({
+    iconUrl: member.image_url || "/pinicon.png", 
+    iconSize: [50, 50],
+    iconAnchor: [25, 50],
+    popupAnchor: [0, -50],
+  });
+};
+
   return (
     <HeaderLayout>
       {myInfo.admin === 1 && familyMembers.length > 0? (
@@ -340,6 +349,7 @@ export const Home = () => {
           <Marker
             key={member.user_id}
             position={[member.latitude, member.longitude]}
+            icon={createFamilyIcon(member)}
           >
             {member.comment && (
               <Tooltip permanent direction="top" offset={[0, -45]}>
