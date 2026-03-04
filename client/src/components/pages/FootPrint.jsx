@@ -93,7 +93,7 @@ export const FootPrint = () => {
           />
 
 
-          { footExist ? (
+          { footExist && familyArray.length > 0 ? (
             /* keyがないとcenterが変わっても位置は変わらない。
               keyがあることで、keyが更新されると別物のコンポーネントだと認識され、
               新しいMapContainerが作成される（centerが反映される） */
