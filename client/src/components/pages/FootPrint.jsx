@@ -1,16 +1,17 @@
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer} from "react-leaflet";
 import { useNavigate } from "react-router-dom";
 import "leaflet/dist/leaflet.css";
 import "../../map.css";
 import L from "leaflet";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 L.Icon.Default.imagePath =
   "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/";
 import axios from "axios";
 import { useUser } from "../UserContext";
 import { FamilySelect } from "./FamilySelect";
 import { FootPrintMarker } from "../molecules/FootPrintMarker";
-import { use } from "react";
+import { HeaderLayout } from "../templates/HeaderLayout";
+
 
 
 export const FootPrint = () => {
@@ -23,6 +24,8 @@ export const FootPrint = () => {
   //選択された家族の足あと履歴
   const [history, setHistory] = useState([]);
   const [center, setCenter] = useState(null);
+  //足あとがありかなしか判定
+  const [footExist, setfootExist] = useState(false);
    let navigate = useNavigate();
   
 
@@ -59,22 +62,19 @@ export const FootPrint = () => {
   setHistory(res.data);
 
   if (res.data.length > 0) {
+    setfootExist(true);
     setCenter([res.data[0].latitude, res.data[0].longitude]);
   } else {
+    setfootExist(false);
     setCenter([35.18, 136.9]);
   }
 
   }
 
-
    useEffect(() => {
     getFamily();
   }, []);
 
-  // 初期値の緯度経度
-  // const position = [currentPosition.latitude, currentPosition.longitude];
-  // const markerPosition = [currentPosition.latitude, currentPosition.longitude];
-  // const markerPosition2 = [35.8, 139.61];
   // 初期マップズームレベル
   const zoom = 30;
 
@@ -84,20 +84,20 @@ export const FootPrint = () => {
   }
 
    return (
-    <>
-    <h1>足あと表示ページ</h1>
-  
-          <button onClick={() => navigate("/home")}>ホームに戻る</button>
-
+    <HeaderLayout>
+    <h1>今日の足あと</h1>
           {/* 表示ユーザ選択プルダウン */}
           <FamilySelect
             familyArray={familyArray}
             onChangeFamily={handleFamilyChange}
           />
-          {/* keyがないとcenterが変わっても位置は変わらない。
-          keyがあることで、keyが更新されると別物のコンポーネントだと認識され、
-          新しいMapContainerが作成される（centerが反映される） */}
-          <MapContainer center={center} zoom={zoom} key={center}>
+
+
+          { footExist ? (
+            /* keyがないとcenterが変わっても位置は変わらない。
+              keyがあることで、keyが更新されると別物のコンポーネントだと認識され、
+              新しいMapContainerが作成される（centerが反映される） */
+             <MapContainer center={center} zoom={zoom} key={center}>
             <TileLayer
               attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -106,10 +106,19 @@ export const FootPrint = () => {
             <FootPrintMarker
               history={history}
             />
-            
-
           </MapContainer>
-        
-    </>
+          
+          ) : (
+            <>
+            <p>今日のあしあとがありません</p>
+            <MapContainer center={center} zoom={zoom} key={center}>
+            <TileLayer
+              attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+          </MapContainer>
+          </>
+          )}
+    </HeaderLayout>
    )
 }
