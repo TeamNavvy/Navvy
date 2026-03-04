@@ -339,7 +339,7 @@ export const Home = () => {
           ${status}
         </span>
         <span style="font-size: 18px; margin-left: 4px;">
-          ${minutes}分
+          ${minutes}
         </span>
       </div>
     `,
@@ -347,6 +347,18 @@ export const Home = () => {
       iconSize: null,
       iconAnchor: [20, 40],
     });
+
+     // 時間管理用
+  const handleTime = (time) => {
+    
+    if(time < 60) return `${time}分前`
+    //1時間以上
+    const diffHours = Math.floor(time / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffHours < 24) return `${diffHours}時間前`;
+    return `${diffDays}日前`;
+  };
 
 //   const createFamilyIcon = (member) => {
 //   return L.icon({
@@ -402,7 +414,7 @@ export const Home = () => {
             icon={familyPin(
               member.image_url || "/pinicon.png",
               member.status || "",
-              member.stayMinutes,
+              handleTime(member.stayMinutes),
             )}
           >
             {member.comment && (
