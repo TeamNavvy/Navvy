@@ -224,7 +224,7 @@ export const Home = () => {
   `,
     className: "",
     iconSize: null,
-    iconAnchor: [12, 41], // ← ピンの先端を markerPosition に完全固定25×41のため
+    iconAnchor: [12, 41], // ← ピンの先端をmarkerPositionに完全固定25×41のため
   });
 
   return (
