@@ -16,6 +16,7 @@ import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 //グローバルステート用
 import { useUser } from "../UserContext";
+import { HeaderLayout } from "../templates/HeaderLayout";
 
 // Popup 内専用コンポーネント（useMap が使えるようにする）
 const PopupContent = ({
@@ -158,18 +159,18 @@ export const Home = () => {
     }
   };
 
-   //ログインユーザアイコンURL取得
+  //ログインユーザアイコンURL取得
   const getMyIconURL = async () => {
     try {
       const res = await axios.get(`/api/icon/${user.id}`);
-      console.log(res.data.image_url)
+      console.log(res.data.image_url);
       if (res.data) {
         setmyIconURL(res.data.image_url);
       }
     } catch (err) {
       console.error(err);
-    } 
-  }
+    }
+  };
 
   // 初回、30秒ごとに位置情報取得して保存
   useEffect(() => {
@@ -186,7 +187,6 @@ export const Home = () => {
     }, 20000);
 
     getMyIconURL(user.id);
-
   }, []);
 
   if (!currentPosition) {
@@ -213,8 +213,6 @@ export const Home = () => {
     }
   };
 
- 
-
   const pinWithEmoji = L.divIcon({
     html: `
     <div style="
@@ -233,14 +231,13 @@ export const Home = () => {
     className: "",
     iconSize: null,
     iconAnchor: [12, 41], // ← ピンの先端をmarkerPositionに完全固定25×41のため
-
   });
 
+  const markerPosition2 = [35.65858, 139.74543];
+
   return (
-    <>
+    <HeaderLayout>
       <h1>地図表記デモ</h1>
-      <button onClick={() => navigate("/myPage")}>マイページ</button>
-      <button onClick={() => navigate("/footPrint")}>足あとを見る</button>
       <MapContainer center={position} zoom={zoom} key={position}>
         <TileLayer
           attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -274,6 +271,6 @@ export const Home = () => {
           </Popup>
         </Marker>
       </MapContainer>
-    </>
+    </HeaderLayout>
   );
 };
