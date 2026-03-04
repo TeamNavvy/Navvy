@@ -1,16 +1,17 @@
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer} from "react-leaflet";
 import { useNavigate } from "react-router-dom";
 import "leaflet/dist/leaflet.css";
 import "../../map.css";
 import L from "leaflet";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 L.Icon.Default.imagePath =
   "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/";
 import axios from "axios";
 import { useUser } from "../UserContext";
 import { FamilySelect } from "./FamilySelect";
 import { FootPrintMarker } from "../molecules/FootPrintMarker";
-import { use } from "react";
+import { HeaderLayout } from "../templates/HeaderLayout";
+
 
 
 export const FootPrint = () => {
@@ -70,15 +71,10 @@ export const FootPrint = () => {
 
   }
 
-
    useEffect(() => {
     getFamily();
   }, []);
 
-  // 初期値の緯度経度
-  // const position = [currentPosition.latitude, currentPosition.longitude];
-  // const markerPosition = [currentPosition.latitude, currentPosition.longitude];
-  // const markerPosition2 = [35.8, 139.61];
   // 初期マップズームレベル
   const zoom = 30;
 
@@ -88,11 +84,8 @@ export const FootPrint = () => {
   }
 
    return (
-    <>
+    <HeaderLayout>
     <h1>今日の足あと</h1>
-  
-        <button onClick={() => navigate("/home")}>ホームに戻るボタン</button>
-
           {/* 表示ユーザ選択プルダウン */}
           <FamilySelect
             familyArray={familyArray}
@@ -116,8 +109,16 @@ export const FootPrint = () => {
           </MapContainer>
           
           ) : (
-            <p>今日の足あとがありません</p>
+            <>
+            <p>今日のあしあとがありません</p>
+            <MapContainer center={center} zoom={zoom} key={center}>
+            <TileLayer
+              attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+          </MapContainer>
+          </>
           )}
-    </>
+    </HeaderLayout>
    )
 }
