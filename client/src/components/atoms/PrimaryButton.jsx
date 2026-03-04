@@ -13,7 +13,7 @@ export const PrimaryButton = (props) => {
       bg="gray"
       color="white"
       _hover={{ opacity: 0.8 }}
-      isdisabled={disabled || loading}
+      disabled={disabled || loading}
       isLoading={loading}
       onClick={onClick}
       {...rest}

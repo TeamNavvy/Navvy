@@ -14,8 +14,16 @@ import {
   Heading,
   Card,
   Text,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalBody,
+  ModalCloseButton,
+  useDisclosure,
 } from "@chakra-ui/react";
+
 import { HeaderLayout } from "../templates/HeaderLayout";
+import { useMessage } from "../../hooks/useMessage";
 
 export const Mypage = () => {
   // セッションのユーザー情報の取得
@@ -31,6 +39,12 @@ export const Mypage = () => {
 
   const [searchWord, setSearchword] = useState("");
 
+  // モーダル用ステート
+  // const { isOpen, onOpen, onClose } = useDisclosure();
+  // const [modalMessage, setModalMessage] = useState("");
+
+  const { showMessage } = useMessage();
+
   const handleSubmit = async (imageUrl) => {
     try {
       let myHomePosition = null;
@@ -40,7 +54,7 @@ export const Mypage = () => {
         );
         // 住所が見つからない場合のエラーハンドリング
         if (!response.data || response.data.length === 0) {
-          alert("住所が見つかりませんでした");
+          showMessage({ title: "住所が見つかりませんでした", status: "error" });
           return;
         }
         myHomePosition = response.data[0].geometry.coordinates;
@@ -53,8 +67,11 @@ export const Mypage = () => {
       if (imageUrl) payload.image_url = imageUrl;
       console.log("payloadは", payload);
 
+      let timer;
       if (Object.keys(payload).length > 0) {
         const response = await axios.patch("/api/myPage", payload);
+        console.log("PATCH 成功レスポンス:", response.data);
+
         setMyInfo((prev) => ({
           ...prev,
           ...(newName && { name: newName }),
@@ -63,13 +80,13 @@ export const Mypage = () => {
         setNewName("");
         setNewPassword("");
         setNewMyHome("");
-        alert(response.data.message);
+        showMessage({ title: response.data.message, status: "success" });
       } else {
-        alert("変更内容がありません");
+        showMessage({ title: "変更内容がありません", status: "error" });
       }
     } catch (error) {
       console.error("エラー内容", error);
-      alert("更新に失敗");
+      showMessage({ title: "更新に失敗", status: "error" });
     }
   };
 
@@ -105,11 +122,17 @@ export const Mypage = () => {
       if (data.success) {
         await handleSubmit(data.data.url);
       } else {
-        alert("画像のアップロードに失敗しました");
+        showMessage({
+          title: "画像のアップロードに失敗しました",
+          status: "error",
+        });
       }
     } catch (error) {
       console.log("アップロードに失敗", error);
-      alert("通信エラーが発生しました");
+      showMessage({
+        title: "通信エラーが発生しました",
+        status: "error",
+      });
     } finally {
       setLoading(false);
     }
@@ -130,8 +153,6 @@ export const Mypage = () => {
         <Divider />
 
         <CardBody>
-          {myInfo.image_url && <img src={myInfo.image_url} />}
-
           <FormField label="ユーザー名の変更">
             <PrimaryInput
               value={newName}
