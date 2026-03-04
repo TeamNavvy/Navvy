@@ -71,13 +71,12 @@ app.post("/api/logout", (req, res) => {
 
 // 現在地をhistoryTBに格納;
 app.post("/api/home", async (req, res) => {
-  const { latitude, longitude, user } = req.body;
-  // console.log("latitude:", latitude);
-  // console.log("latitude:", latitude);
+  const { latitude, longitude, user, stay_start_time } = req.body;
+  //   console.log("latitude:", latitude);
   // const longitude = req.body.currentPosition.longitude;
 
   const [location] = await knex("history")
-    .insert({ user_id: user.id, latitude, longitude })
+    .insert({ user_id: user.id, latitude, longitude, stay_start_time })
     .returning("*");
 
   res.json(location);
@@ -122,7 +121,7 @@ app.get("/api/mypage/:id", async (req, res) => {
   const id = req.params.id;
   const result = await knex("users")
     .where({ id })
-    .select("name", "image_url", "status", "message", "admin");
+    .select("name", "image_url", "admin");
   res.send(result);
 });
 
@@ -286,6 +285,39 @@ app.get("/api/icon/:userId", async (req, res) => {
     console.error(err);
     res.status(500).json({ error: "iconURL取得エラー" });
   }
+});
+
+// historyの最新のものを取得
+app.get("/api/history/:id", async (req, res) => {
+  const user_id = Number(req.params.id);
+
+  const result = await knex("history")
+    .where({ user_id })
+    .orderBy("created_at", "desc")
+    .first();
+
+  return res.send(result);
+});
+
+// 既存familyメンバーの位置情報取得機能
+app.get("/api/family-positions/:id", async (req, res) => {
+  const id = Number(req.params.id);
+  const familyPos = await knex("family")
+    .join("history", "family.family_id", "history.user_id")
+    .where("family.user_id", id)
+    .distinctOn("history.user_id") // ユーザーごとに重複を排除
+    .select(
+      "history.user_id",
+      "history.latitude",
+      "history.longitude",
+      "history.created_at",
+    )
+    .orderBy([
+      { column: "history.user_id" },
+      { column: "history.created_at", order: "desc" },
+    ]);
+
+  return res.send(familyPos);
 });
 
 app.listen(PORT, () => {
