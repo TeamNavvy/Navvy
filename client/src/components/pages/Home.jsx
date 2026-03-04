@@ -296,7 +296,7 @@ export const Home = () => {
 
   return (
     <HeaderLayout>
-      {myInfo.admin === 1 ? (
+      {myInfo.admin === 1 && familyMembers.length > 0? (
         <button onClick={() => navigate("/footPrint")}>足あとを見る</button>
       ) : (
         <div></div>
