@@ -279,6 +279,7 @@ export const Home = () => {
     <div style="
       display: flex;
       align-items: center;
+      white-space: nowrap; 
     "> 
       <img
         src="${myIconURL}"
@@ -287,11 +288,14 @@ export const Home = () => {
       <span style="font-size: 22px; margin-left: 4px;">
         ${status}
       </span>
+      <span style="font-size: 18px; margin-left: 4px;">
+        ${stayMinutes}分
+      </span>
     </div>
   `,
     className: "",
     iconSize: null,
-    iconAnchor: [12, 41], // ← ピンの先端をmarkerPositionに完全固定25×41のため
+    iconAnchor: [12, 41],
   });
 
   return (
