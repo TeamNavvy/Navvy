@@ -394,10 +394,14 @@ export const Home = () => {
             )}
           </Popup>
         </Marker>
-        {/* {familyMembers.map((member) => (
+        {familyMembers.map((member) => (
           <Marker
             position={[member.latitude, member.longitude]}
-            icon={familyPin(member.image_url, member.status, stayMinutes)}
+            icon={familyPin(
+              member.image_url,
+              member.status,
+              member.stayMinutes,
+            )}
           >
             {member.comment && (
               <Tooltip permanent direction="top" offset={[0, -45]}>
@@ -405,7 +409,7 @@ export const Home = () => {
               </Tooltip>
             )}
           </Marker>
-        ))} */}
+        ))}
       </MapContainer>
     </HeaderLayout>
   );
