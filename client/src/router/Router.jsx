@@ -6,6 +6,7 @@ import { ProtectedRoute } from "..//components/ProtectedRoute";
 import { Mypage } from "../components//pages/Mypage";
 import { Register } from "../components//pages/Register";
 import { FootPrint } from "../components/pages/FootPrint";
+import { Message } from "../components/pages/Message";
 
 export const Router = () => {
   return (
@@ -34,6 +35,14 @@ export const Router = () => {
           element={
             <ProtectedRoute>
               <FootPrint />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/message"
+          element={
+            <ProtectedRoute>
+              <Message />
             </ProtectedRoute>
           }
         />

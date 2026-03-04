@@ -18,6 +18,10 @@ export const Header = () => {
     navigate("/home");
   };
 
+  const onClickToMessage = () => {
+    navigate("/message");
+  };
+
   const handleLogout = async () => {
     await axios.post("/api/logout");
     setUser(null);
@@ -61,7 +65,7 @@ export const Header = () => {
         <Tooltip ml="20" label="メールBOX" placement="bottom">
           <Box
             cursor="pointer"
-            onClick={onClickToMyPage}
+            onClick={onClickToMessage}
             _hover={{ opacity: 0.8, transform: "scale(1.05)" }}
             transition="all 0.2s"
           >
