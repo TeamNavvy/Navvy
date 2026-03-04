@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useUser } from "../UserContext";
-import { RegisterFamily } from "./registerFamily";
+import { RegisterFamily } from "./RegisterFamily";
 import { PrimaryInput } from "../atoms/PrimaryInput";
 import { PrimaryButton } from "../atoms/PrimaryButton";
 import { FileInput } from "../atoms/FileInput";
