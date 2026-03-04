@@ -5,7 +5,7 @@ const crypto = require("crypto");
 const knex = require("./db/knex");
 const app = express();
 const PORT = process.env.PORT || 3000;
-const distance = require("@turf/distance");
+const { distance } = require("@turf/distance");
 const { point } = require("@turf/helpers");
 
 // セッションの設定
@@ -95,6 +95,7 @@ app.post("/api/home", async (req, res) => {
   const currentDistance = distance(homePoint, currentPoint, {
     units: "meters",
   });
+  console.log("現在の自宅からの距離", currentDistance);
   const isNowHome = currentDistance <= threshold; //現在自宅にいるかどうかの判定
 
   // 直前のhistoryを取得
@@ -109,6 +110,7 @@ app.post("/api/home", async (req, res) => {
   // 直前の距離の計算
   const prevPoint = point([prev.latitude, prev.longitude]);
   const prevDistance = distance(homePoint, prevPoint, { units: "meters" });
+  console.log("直前までの自宅からの距離", prevDistance);
   // 自宅に直前までいたかどうかの判定
   const wasHome = prevDistance <= threshold;
 
@@ -119,6 +121,7 @@ app.post("/api/home", async (req, res) => {
 
   if (!wasHome && isNowHome) {
     // 直前まで外出→現在は自宅のパターン
+    console.log("帰宅完了！");
     for (const receiver of receivers) {
       await knex("notifications").insert({
         sender_id: user.id,
@@ -128,6 +131,7 @@ app.post("/api/home", async (req, res) => {
       });
     }
   } else if (wasHome && !isNowHome) {
+    console.log("外出します！！");
     // 直前まで自宅→現在は外出のパターン
     for (const receiver of receivers) {
       await knex("notifications").insert({
@@ -153,12 +157,22 @@ app.get("/api/notifications/:userId", async (req, res) => {
       "notifications.id",
       "notifications.occurred_at",
       "notifications.type",
+      "notifications.is_read",
       "users.name as sender_name",
       "users.image_url as sender_image",
     )
-    .orderBy("notifications.arrive_at", "desc");
+    .orderBy("notifications.occurred_at", "desc");
 
   res.json(notifications);
+});
+
+// 既読管理
+app.patch("/api/notifications/:messageId/read", async (req, res) => {
+  const messageId = Number(req.params.messageId);
+  await knex("notifications")
+    .where({ id: messageId })
+    .update({ is_read: true });
+  res.json({ message: "既読になりました" });
 });
 
 // マイページ変更機能
