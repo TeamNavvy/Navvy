@@ -190,7 +190,7 @@ export const Home = () => {
     try {
       const res = await axios.get(`/api/status/${user.id}`);
       if (res.data) {
-        setStatus(res.data.status || "");
+        setStatus(res.data.status || "🏠");
         setComment(res.data.comment || "");
       }
     } catch (err) {
