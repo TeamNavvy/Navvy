@@ -121,7 +121,7 @@ app.get("/api/mypage/:id", async (req, res) => {
   const id = req.params.id;
   const result = await knex("users")
     .where({ id })
-    .select("name", "image_url", "status", "message", "admin");
+    .select("name", "image_url", "admin");
   res.send(result);
 });
 
