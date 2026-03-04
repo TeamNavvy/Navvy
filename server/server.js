@@ -275,6 +275,19 @@ app.get("/api/history/today/:userId", async (req, res) => {
   }
 });
 
+// ログインユーザアイコンURL取得
+app.get("/api/icon/:userId", async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const result = await knex("users").where("id", userId).select("image_url");
+    console.log("iconurl", result);
+    res.json(result[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "iconURL取得エラー" });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

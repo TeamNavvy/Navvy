@@ -85,6 +85,8 @@ export const Home = () => {
   const { user, setUser } = useUser();
   //現在地用
   const [currentPosition, setCurrentPosition] = useState();
+  //ログインユーザのアイコンURL
+  const [myIconURL, setmyIconURL] = useState("");
   let navigate = useNavigate();
   const positionRef = useRef(null);
 
@@ -148,6 +150,19 @@ export const Home = () => {
     }
   };
 
+   //ログインユーザアイコンURL取得
+  const getMyIconURL = async () => {
+    try {
+      const res = await axios.get(`/api/icon/${user.id}`);
+      console.log(res.data.image_url)
+      if (res.data) {
+        setmyIconURL(res.data.image_url);
+      }
+    } catch (err) {
+      console.error(err);
+    } 
+  }
+
   // 初回、30秒ごとに位置情報取得して保存
   useEffect(() => {
     //初回位置情報取得＆保存
@@ -161,6 +176,9 @@ export const Home = () => {
     setInterval(() => {
       postPosition(positionRef.current);
     }, 20000);
+
+    getMyIconURL(user.id);
+
   }, []);
 
   if (!currentPosition) {
@@ -173,17 +191,6 @@ export const Home = () => {
   // const markerPosition2 = [35.8, 139.61];
   // 初期マップズームレベル
   const zoom = 30;
-
-  // useEffect(() => {
-  //   fetch(`/api`)
-  //     .then((res) => res.json())
-  //     .then((data) => console.log(data, "******"));
-  // }, []);
-
-  // // user_status管理
-  // const [emotion, setEmotion] = useState("");
-  // const [comment, setComment] = useState("");
-  // const [loading, setLoading] = useState(true);
 
   // 保存処理
   const saveStatus = async () => {
@@ -198,6 +205,8 @@ export const Home = () => {
       alert("保存に失敗しました");
     }
   };
+
+ 
 
   const pinWithEmojiAndComment = L.divIcon({
     html: `
@@ -235,7 +244,7 @@ export const Home = () => {
       <!-- ピン + 絵文字（横並び） -->
       <div style="display: flex; align-items: center; margin-top: 4px;">
         <img 
-          src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png"
+          src="${myIconURL}"
           style="width: 25px; height: 41px;"
         />
         <span style="font-size: 22px; margin-left: 4px;">
@@ -247,6 +256,7 @@ export const Home = () => {
     className: "",
     iconSize: [160, 100],
     iconAnchor: [20, 100],
+    // iconUrl: "https://i.ibb.co/9mvbk5rY/IMG-1417.jpg" ,
   });
 
   return (
@@ -254,7 +264,7 @@ export const Home = () => {
       <h1>地図表記デモ</h1>
       <button onClick={() => navigate("/myPage")}>マイページ</button>
       <button onClick={() => navigate("/footPrint")}>足あとを見る</button>
-      <MapContainer center={position} zoom={zoom}>
+      <MapContainer center={position} zoom={zoom} key={position}>
         <TileLayer
           attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
