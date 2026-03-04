@@ -1,0 +1,4 @@
+.round-icon {
+  border-radius: 50%;
+  object-fit: cover;   /* 画像をきれいに丸くトリミング */
+}

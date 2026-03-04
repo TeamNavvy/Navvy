@@ -4,6 +4,8 @@ import { IoFootstepsSharp } from "react-icons/io5";
 import ReactDOMServer from "react-dom/server";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import "./FootPrintMarker.css";
+
 
   const iconHTML = ReactDOMServer.renderToString(
   <IoFootstepsSharp size={40}  />
@@ -45,7 +47,8 @@ export const FootPrintMarker = ({history}) => {
           iconUrl: res.data.image_url,
           iconSize: [50, 50],
           iconAnchor: [25, 50],
-          popupAnchor: [0, -50]
+          popupAnchor: [0, -50],
+          className: 'round-icon'
         });
         setCurrentIcon(icon);
       }

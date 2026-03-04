@@ -271,21 +271,21 @@ app.post("/api/family/register/:name", async (req, res) => {
 });
 
 // 既存familyメンバー取得機能
-app.get("/api/family/:id", async (req, res) => {
-  const userId = Number(req.params.id);
-  const familyIds = (
-    await knex("family").where({ user_id: userId }).select("family_id")
-  ).map((el) => el.family_id);
-  if (familyIds.length === 0) {
-    return res.send([]);
-  }
+// app.get("/api/family/:id", async (req, res) => {
+//   const userId = Number(req.params.id);
+//   const familyIds = (
+//     await knex("family").where({ user_id: userId }).select("family_id")
+//   ).map((el) => el.family_id);
+//   if (familyIds.length === 0) {
+//     return res.send([]);
+//   }
 
-  const family = await knex("users")
-    .whereIn("id", familyIds)
-    .select("id", "name", "image_url");
+//   const family = await knex("users")
+//     .whereIn("id", familyIds)
+//     .select("id", "name", "image_url");
 
-  return res.send(family);
-});
+//   return res.send(family);
+// });
 
 // ファミリー削除機能
 app.delete("/api/family/:id", async (req, res) => {
@@ -339,7 +339,7 @@ app.get("/api/family/:userId", async (req, res) => {
   try {
     const family = await knex("family")
       .leftJoin("users", "family.family_id", "users.id")
-      .select("users.id", "users.name")
+      .select("users.id", "users.name", "users.image_url")
       .where("family.user_id", userId);
 
     res.json(family);

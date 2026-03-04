@@ -298,7 +298,8 @@ export const Home = () => {
     }
   };
 
-  const pinWithEmoji = L.divIcon({
+  const pinWithEmoji = (iconUrl) => 
+    L.divIcon({
     html: `
     <div style="
       display: flex;
@@ -306,10 +307,10 @@ export const Home = () => {
       white-space: nowrap; 
     "> 
       <img
-        src="${myIconURL}"
-        style="width: 25px; height: 41px;"
+        src="${iconUrl}"
+        style="width: 55px; height: 55px; object-fit: cover;  border-radius: 50%; "
       />
-      <span style="font-size: 22px; margin-left: 4px;">
+      <span style="font-size: 22px;  margin-left: 4px;">
         ${status}
       </span>
       <span style="font-size: 18px; margin-left: 4px;">
@@ -319,7 +320,7 @@ export const Home = () => {
   `,
     className: "",
     iconSize: null,
-    iconAnchor: [12, 41],
+    iconAnchor: [20,40],
   });
 
   const familyPin = (iconUrl, status, minutes) =>
@@ -332,7 +333,7 @@ export const Home = () => {
       ">
         <img
           src="${iconUrl}"
-          style="width: 25px; height: 41px;"
+          style="width: 40px; height: 40px; object-fit: cover;  border-radius: 50%;"
         />
         <span style="font-size: 22px; margin-left: 4px;">
           ${status}
@@ -344,33 +345,23 @@ export const Home = () => {
     `,
       className: "",
       iconSize: null,
-      iconAnchor: [12, 41],
+      iconAnchor: [20, 40],
     });
 
-  const createFamilyIcon = (member) => {
-  return L.icon({
-    iconUrl: member.image_url || "/pinicon.png", 
-    iconSize: [50, 50],
-    iconAnchor: [25, 50],
-    popupAnchor: [0, -50],
-  });
-};
+//   const createFamilyIcon = (member) => {
+//   return L.icon({
+//     iconUrl: member.image_url || "/pinicon.png", 
+//     iconSize: [50, 50],
+//     iconAnchor: [25, 50],
+//     popupAnchor: [0, -50],
+//   });
+// };
 
   return (
-    <HeaderLayout>
-      {myInfo.admin === 1 && familyMembers.length > 0? (
-        <button onClick={() => navigate("/footPrint")}>足あとを見る</button>
-      ) : (
-        <div></div>
-      )}
-
-      <h1>地図表記デモ</h1>
-      <p>私の滞在時間：{stayMinutes}</p>
-      {familyMembers.map((member) => (
-        <p>
-          {member.user_id}の滞在時間{member.stayMinutes}
-        </p>
-      ))}
+    <HeaderLayout
+     familyMembers={familyMembers}
+     myInfo={myInfo}>
+     
       <MapContainer center={position} zoom={zoom}>
         <TileLayer
           attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -378,7 +369,7 @@ export const Home = () => {
         />
         <Marker
           position={markerPosition}
-          icon={pinWithEmoji}
+          icon={pinWithEmoji(myIconURL || "/pinicon.png")}
           eventHandlers={{
             click: () => {
               setLoading(true);
@@ -405,8 +396,14 @@ export const Home = () => {
         </Marker>
         {familyMembers.map((member) => (
           <Marker
+            key={member.user_id}
             position={[member.latitude, member.longitude]}
-            icon={createFamilyIcon(member)}
+            // icon={createFamilyIcon(member)}
+            icon={familyPin(
+              member.image_url || "/pinicon.png",
+              member.status || "",
+              member.stayMinutes,
+            )}
           >
             {member.comment && (
               <Tooltip permanent direction="top" offset={[0, -45]}>
