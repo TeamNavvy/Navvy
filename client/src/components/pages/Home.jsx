@@ -338,6 +338,18 @@ export const Home = () => {
             )}
           </Popup>
         </Marker>
+        {familyMembers.map((member) => (
+          <Marker
+            key={member.user_id}
+            position={[member.latitude, member.longitude]}
+          >
+            {member.comment && (
+              <Tooltip permanent direction="top" offset={[0, -45]}>
+                {member.comment}
+              </Tooltip>
+            )}
+          </Marker>
+        ))}
       </MapContainer>
     </HeaderLayout>
   );
