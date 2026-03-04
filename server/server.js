@@ -73,10 +73,11 @@ app.post("/api/logout", (req, res) => {
 app.post("/api/home", async (req, res) => {
   const { latitude, longitude, user } = req.body;
   // console.log("latitude:", latitude);
+  // console.log("latitude:", latitude);
   // const longitude = req.body.currentPosition.longitude;
 
   const [location] = await knex("history")
-    .insert({ user_id: 3, latitude, longitude })
+    .insert({ user_id: user.id, latitude, longitude })
     .returning("*");
 
   res.json(location);
@@ -216,18 +217,18 @@ app.get("/api/status/:userId", async (req, res) => {
 
 // status updateメソッド（データが無い1回目はinsertする）
 app.post("/api/status", async (req, res) => {
-  const { userId, emotion, comment } = req.body;
+  const { userId, status, comment } = req.body;
   try {
     const exist = await knex("user_status").where({ user_id: userId }).first();
 
     if (exist) {
       await knex("user_status")
         .where({ user_id: userId })
-        .update({ emotion, comment, updated_at: knex.fn.now() });
+        .update({ status, comment, updated_at: knex.fn.now() });
     } else {
       await knex("user_status").insert({
         user_id: userId,
-        emotion,
+        status,
         comment,
         updated_at: knex.fn.now(),
       });
@@ -237,6 +238,53 @@ app.post("/api/status", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "status更新エラー" });
+  }
+});
+
+// 家族取得
+app.get("/api/family/:userId", async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const family = await knex("family")
+      .leftJoin("users", "family.family_id", "users.id")
+      .select("users.id", "users.name")
+      .where("family.user_id", userId);
+
+    res.json(family);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "家族取得失敗" });
+  }
+});
+
+//選択された家族の今日の足あと取得（全件取得）
+app.get("/api/history/today/:userId", async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const history = await knex("history")
+      .select("*")
+      .where("user_id", userId)
+      .andWhere("created_at", ">=", knex.raw("CURRENT_DATE"))
+      .orderBy("created_at", "desc");
+
+    res.json(history);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "履歴取得エラー" });
+  }
+});
+
+// ログインユーザアイコンURL取得
+app.get("/api/icon/:userId", async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const result = await knex("users").where("id", userId).select("image_url");
+    console.log("iconurl", result);
+    res.json(result[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "iconURL取得エラー" });
   }
 });
 

@@ -1,4 +1,11 @@
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  useMap,
+  Tooltip,
+} from "react-leaflet";
 import { useNavigate } from "react-router-dom";
 import "leaflet/dist/leaflet.css";
 import "../../map.css";
@@ -13,8 +20,8 @@ import { HeaderLayout } from "../templates/HeaderLayout";
 
 // Popup 内専用コンポーネント（useMap が使えるようにする）
 const PopupContent = ({
-  emotion,
-  setEmotion,
+  status,
+  setStatus,
   comment,
   setComment,
   saveStatus,
@@ -29,10 +36,10 @@ const PopupContent = ({
   return (
     <div style={{ width: "200px" }}>
       <div>
-        <strong>feeling</strong>
+        <strong>Status</strong>
         <select
-          value={emotion}
-          onChange={(e) => setEmotion(e.target.value)}
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
           style={{
             width: "100%",
             marginTop: "5px",
@@ -40,17 +47,18 @@ const PopupContent = ({
             fontSize: "18px",
           }}
         >
-          <option value="😃">😃</option>
-          <option value="🙂">🙂</option>
-          <option value="😐">😐</option>
-          <option value="😢">😢</option>
-          <option value="😡">😡</option>
-          <option value="👹">👹</option>
+          <option value="🏠">🏠</option>
+          <option value="🏫">🏫</option>
+          <option value="🏃‍♀️">🏃‍♀️</option>
+          <option value="🛝">🛝</option>
+          <option value="✍🏻">✍🏻</option>
+          <option value="💰">💰</option>
+          <option value="🧓🧑‍🦳">🧓🧑‍🦳</option>
         </select>
       </div>
 
       <div style={{ marginTop: "10px" }}>
-        <strong>comment</strong>
+        <strong>Comment</strong>
         <textarea
           value={comment}
           onChange={(e) => setComment(e.target.value)}
@@ -78,7 +86,7 @@ const PopupContent = ({
 
 export const Home = () => {
   // user_status管理
-  const [emotion, setEmotion] = useState("😃");
+  const [status, setStatus] = useState("");
   const [comment, setComment] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -86,6 +94,8 @@ export const Home = () => {
   const { user, setUser } = useUser();
   //現在地用
   const [currentPosition, setCurrentPosition] = useState();
+  //ログインユーザのアイコンURL
+  const [myIconURL, setmyIconURL] = useState("");
   let navigate = useNavigate();
   const positionRef = useRef(null);
 
@@ -139,13 +149,26 @@ export const Home = () => {
     try {
       const res = await axios.get(`/api/status/${user.id}`);
       if (res.data) {
-        setEmotion(res.data.emotion || "😃");
+        setStatus(res.data.status || "");
         setComment(res.data.comment || "");
       }
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  //ログインユーザアイコンURL取得
+  const getMyIconURL = async () => {
+    try {
+      const res = await axios.get(`/api/icon/${user.id}`);
+      console.log(res.data.image_url);
+      if (res.data) {
+        setmyIconURL(res.data.image_url);
+      }
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -162,6 +185,8 @@ export const Home = () => {
     setInterval(() => {
       postPosition(positionRef.current);
     }, 20000);
+
+    getMyIconURL(user.id);
   }, []);
 
   if (!currentPosition) {
@@ -174,24 +199,12 @@ export const Home = () => {
   // const markerPosition2 = [35.8, 139.61];
   // 初期マップズームレベル
   const zoom = 30;
-
-  // useEffect(() => {
-  //   fetch(`/api`)
-  //     .then((res) => res.json())
-  //     .then((data) => console.log(data, "******"));
-  // }, []);
-
-  // // user_status管理
-  // const [emotion, setEmotion] = useState("");
-  // const [comment, setComment] = useState("");
-  // const [loading, setLoading] = useState(true);
-
   // 保存処理
   const saveStatus = async () => {
     try {
       await axios.post("/api/status", {
         userId: user.id,
-        emotion,
+        status,
         comment,
       });
     } catch (err) {
@@ -200,83 +213,64 @@ export const Home = () => {
     }
   };
 
-  const pinWithEmojiAndComment = L.divIcon({
+  const pinWithEmoji = L.divIcon({
     html: `
-    <div style="position: relative; width: 200px;">
-      
-      <!-- 吹き出し + 絵文字（ピンの上に浮かせる） -->
-      <div style="
-        position: absolute;
-        bottom: 41px;
-        left: 0px;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        white-space: nowrap;
-      ">
-        <div style="
-          background: white;
-          padding: 4px 8px;
-          border-radius: 8px;
-          box-shadow: 0 2px 6px rgba(0,0,0,0.25);
-          font-size: 14px;
-        ">${comment || ""}</div>
-        <span style="font-size: 22px;">${emotion}</span>
-      </div>
-
-      <!-- ピン画像（アンカー基準） -->
-      <img 
-        src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png"
-        style="width: 25px; height: 41px; display: block;"
+    <div style="
+      display: flex;
+      align-items: center;
+    "> 
+      <img
+        src="${myIconURL}"
+        style="width: 25px; height: 41px;"
       />
+      <span style="font-size: 22px; margin-left: 4px;">
+        ${status}
+      </span>
     </div>
   `,
     className: "",
-    iconSize: [200, 41], // 高さ = ピン画像の高さだけ
-    iconAnchor: [12, 41], // ピン画像の中心・底辺
-    popupAnchor: [0, -41],
+    iconSize: null,
+    iconAnchor: [12, 41], // ← ピンの先端をmarkerPositionに完全固定25×41のため
   });
 
   const markerPosition2 = [35.65858, 139.74543];
 
   return (
     <HeaderLayout>
-      <>
-        <h1>地図表記デモ</h1>
-        <MapContainer center={position} zoom={zoom}>
-          <TileLayer
-            attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-          <Marker
-            position={markerPosition}
-            icon={pinWithEmojiAndComment}
-            eventHandlers={{
-              click: () => {
-                setLoading(true);
-                fetchStatus();
-              },
-            }}
-          >
-            <Popup>
-              {loading ? (
-                <div>読み込み中...</div>
-              ) : (
-                <PopupContent
-                  emotion={emotion}
-                  setEmotion={setEmotion}
-                  comment={comment}
-                  setComment={setComment}
-                  saveStatus={saveStatus}
-                />
-              )}
-            </Popup>
-          </Marker>
-          <Marker position={markerPosition2}>
-            <Popup>2つ目だよーーー</Popup>
-          </Marker>
-        </MapContainer>
-      </>
+      <h1>地図表記デモ</h1>
+      <MapContainer center={position} zoom={zoom} key={position}>
+        <TileLayer
+          attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        <Marker
+          position={markerPosition}
+          icon={pinWithEmoji}
+          eventHandlers={{
+            click: () => {
+              setLoading(true);
+              fetchStatus();
+            },
+          }}
+        >
+          <Tooltip permanent direction="top" offset={[0, -45]}>
+            {comment}
+          </Tooltip>
+          <Popup>
+            {loading ? (
+              <div>読み込み中...</div>
+            ) : (
+              <PopupContent
+                status={status}
+                setStatus={setStatus}
+                comment={comment}
+                setComment={setComment}
+                saveStatus={saveStatus}
+              />
+            )}
+          </Popup>
+        </Marker>
+      </MapContainer>
     </HeaderLayout>
   );
 };
