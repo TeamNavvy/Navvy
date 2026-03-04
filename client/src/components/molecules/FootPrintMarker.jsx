@@ -1,5 +1,7 @@
 import { Marker, Popup } from "react-leaflet";
 import L from "leaflet";
+import { IoFootstepsSharp } from "react-icons/io5";
+import ReactDOMServer from "react-dom/server";
 
  const currentIcon = new L.Icon({
     iconUrl: "public/pinicon.png",
@@ -7,6 +9,17 @@ import L from "leaflet";
     iconAnchor: [50, 100],
     popupAnchor: [0, -100]
   });
+
+const iconHTML = ReactDOMServer.renderToString(
+  <IoFootstepsSharp size={40} />
+);
+
+const historyIcon = L.divIcon({
+  html: iconHTML,
+  className: "",
+  iconSize: [40, 40],
+ iconAnchor: [20, 40],
+});
 
 export const FootPrintMarker = ({history}) => {
 
@@ -30,6 +43,7 @@ export const FootPrintMarker = ({history}) => {
         <Marker
           key={h.id}
           position={[h.latitude, h.longitude]}
+          icon={historyIcon}
         >
           <Popup>
             {h.created_at}
