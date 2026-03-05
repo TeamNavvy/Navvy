@@ -91,7 +91,10 @@ export const Header = () => {
             <VscAccount size={28} />
           </Box>
         </Tooltip>
-        <Tooltip ml="20" label="メールBOX" placement="bottom">
+
+         {myInfo.admin === 1 && familyMembers.length > 0? (
+          <>
+          <Tooltip ml="20" label="メールBOX" placement="bottom">
           <Box
             cursor="pointer"
             onClick={onClickToMessage}
@@ -101,7 +104,6 @@ export const Header = () => {
             <CiMail size={28} />
           </Box>
         </Tooltip>
-         {myInfo.admin === 1 && familyMembers.length > 0? (
                  <Tooltip ml="20" label="足あと" placement="bottom">
           <Box
             cursor="pointer"
@@ -112,6 +114,7 @@ export const Header = () => {
             <IoFootsteps size={28} />
           </Box>
         </Tooltip>
+        </>
               ) : (
                 <div></div>
               )}

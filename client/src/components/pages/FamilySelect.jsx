@@ -10,17 +10,17 @@ import axios from "axios";
 import { useUser } from "../UserContext";
 
 import { use } from "react";
+import { HStack } from "@chakra-ui/react";
 
 
 export const FamilySelect = ({familyArray, onChangeFamily}) => {
   // セッションのユーザー情報の取得
   const { user, setUser } = useUser();
 
-  console.log("FamilySelect",familyArray);
-  
-
+  // console.log("FamilySelect",familyArray);
    return (
-    <>
+    <HStack justify='center'>
+
     <h3>表示ユーザ選択</h3>
   
      <select onChange={(e) => onChangeFamily(e.target.value)}>
@@ -33,6 +33,6 @@ export const FamilySelect = ({familyArray, onChangeFamily}) => {
       })}
     </select>
       
-    </>
+    </HStack>
    )
 }

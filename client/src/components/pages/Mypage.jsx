@@ -65,12 +65,12 @@ export const Mypage = () => {
       if (newPassword) payload.password = newPassword;
       if (myHomePosition) payload.myHome = myHomePosition;
       if (imageUrl) payload.image_url = imageUrl;
-      console.log("payloadは", payload);
+      // console.log("payloadは", payload);
 
       let timer;
       if (Object.keys(payload).length > 0) {
         const response = await axios.patch("/api/myPage", payload);
-        console.log("PATCH 成功レスポンス:", response.data);
+        // console.log("PATCH 成功レスポンス:", response.data);
 
         setMyInfo((prev) => ({
           ...prev,
@@ -95,7 +95,7 @@ export const Mypage = () => {
     fetch(`/api/mypage/${user.id}`)
       .then((res) => res.json())
       .then((data) => {
-        console.log("myInfoの中身:", data[0]);
+        // console.log("myInfoの中身:", data[0]);
         setMyInfo(data[0]);
       });
   }, []);
@@ -109,7 +109,7 @@ export const Mypage = () => {
     setLoading(true);
     const formData = new FormData();
     formData.append("image", newIcon);
-    console.log("imageBBへのアップロード", formData);
+    // console.log("imageBBへのアップロード", formData);
     try {
       const response = await fetch(
         `https://api.imgbb.com/1/upload?key=${API_KEY}`,
@@ -128,7 +128,7 @@ export const Mypage = () => {
         });
       }
     } catch (error) {
-      console.log("アップロードに失敗", error);
+      // console.log("アップロードに失敗", error);
       showMessage({
         title: "通信エラーが発生しました",
         status: "error",

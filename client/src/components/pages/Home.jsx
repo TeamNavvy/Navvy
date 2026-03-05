@@ -314,7 +314,7 @@ export const Home = () => {
         ${status}
       </span>
       <span style="font-size: 18px; margin-left: 4px;">
-        ${stayMinutes}分
+        ${handleTime(stayMinutes)}
       </span>
     </div>
   `,
@@ -351,13 +351,13 @@ export const Home = () => {
      // 時間管理用
   const handleTime = (time) => {
     
-    if(time < 60) return `${time}分前`
+    if(time < 60) return `${time}分`
     //1時間以上
     const diffHours = Math.floor(time / 60);
     const diffDays = Math.floor(diffHours / 24);
 
-    if (diffHours < 24) return `${diffHours}時間前`;
-    return `${diffDays}日前`;
+    if (diffHours < 24) return `${diffHours}時間`;
+    return `${diffDays}日`;
   };
 
 //   const createFamilyIcon = (member) => {

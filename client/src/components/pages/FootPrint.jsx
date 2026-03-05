@@ -11,6 +11,7 @@ import { useUser } from "../UserContext";
 import { FamilySelect } from "./FamilySelect";
 import { FootPrintMarker } from "../molecules/FootPrintMarker";
 import { HeaderLayout } from "../templates/HeaderLayout";
+import { Heading } from "@chakra-ui/react";
 
 
 
@@ -33,7 +34,7 @@ export const FootPrint = () => {
   const getFamily = async () => {
      try {
       const res = await axios.get(`/api/family/${user.id}`);
-      console.log("familydata",res.data);
+      // console.log("familydata",res.data);
       setfamilyArray(res.data);
 
       //初期表示
@@ -51,7 +52,7 @@ export const FootPrint = () => {
   //選択された家族格納
   const handleFamilyChange = (familyId) => {
     setSelectedFamily(familyId);
-    console.log("選択された家族", familyId);
+    // console.log("選択された家族", familyId);
     getHistory(familyId);
   };
 
@@ -85,7 +86,7 @@ export const FootPrint = () => {
 
    return (
     <HeaderLayout>
-    <h1>今日の足あと</h1>
+    <Heading>今日の足あと</Heading>
           {/* 表示ユーザ選択プルダウン */}
           <FamilySelect
             familyArray={familyArray}
@@ -110,7 +111,7 @@ export const FootPrint = () => {
           
           ) : (
             <>
-            <p>今日のあしあとがありません</p>
+            <p>今日の足あとがありません</p>
             <MapContainer center={center} zoom={zoom} key={center}>
             <TileLayer
               attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

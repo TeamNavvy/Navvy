@@ -14,7 +14,6 @@ export const Message = () => {
     try {
       const response = await axios(`/api/notifications/${user.id}`);
       const data = response.data;
-      console.log("メッセージ受信内容", data);
       setMessages(data);
     } catch (err) {
       console.error("メッセージ表示のエラー", err);
@@ -27,7 +26,6 @@ export const Message = () => {
       const response = await axios.patch(
         `/api/notifications/${messageId}/read`,
       );
-      console.log("既読", response.data.message);
       handleGetMessage();
     } catch (err) {
       console.error("既読エラー", err);
@@ -56,7 +54,6 @@ export const Message = () => {
     // 1分ごとに実行
     const interval = setInterval(() => {
       handleGetMessage();
-      console.log("メッセージの更新完了");
     }, 10 * 1000);
     // クリーンアップ関数
     return () => {
@@ -90,8 +87,8 @@ export const Message = () => {
                   name={message.sender_name}
                 />
                 <Text>
-                  {message.sender_name}が家に
-                  {message.type === "arrived_home" ? "到着" : "出発"}しました
+                  {message.sender_name}が
+                  {message.type === "arrived_home" ? "家に到着" : "家を出発"}しました
                 </Text>
                 <Text fontSize="xs" color="gray.400">
                   {handleRelativeTime(message.occurred_at)}

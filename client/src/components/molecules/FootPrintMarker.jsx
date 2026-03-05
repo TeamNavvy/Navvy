@@ -41,7 +41,6 @@ export const FootPrintMarker = ({history}) => {
   const getIconURL = async () => {
     try {
       const res = await axios.get(`/api/icon/${history[0].user_id}`);
-      console.log(res.data);
       if (res.data.image_url) {
         const icon = new L.Icon({
           iconUrl: res.data.image_url,
